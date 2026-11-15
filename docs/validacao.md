@@ -1,7 +1,7 @@
 # Validação local (`pnpm validate`)
 
 Um comando roda a pipeline da Definition of Done, para no primeiro erro e imprime um resumo por etapa com tempo.
-O CI (F0-09) deve chamar o mesmo script: `bash infra/scripts/validate.sh`.
+O CI (`.github/workflows/ci.yml`, seção "CI" abaixo) chama o mesmo script, sem duplicar lógica.
 
 ## Comandos
 
@@ -45,3 +45,21 @@ Código de saída: `0` tudo ok; `1` alguma etapa falhou (o resumo diz qual); `2`
    é diferente de 24), flags usadas, comando exato, resultado por etapa e etapas `PULADAS`/não verificadas.
 3. Só marque `[x]` em `task_state.md` se a entrada existir e cobrir o critério de aceite da tarefa.
    Itens fora da pipeline (UI em 360×640, teclado/leitor de tela, E2E, revisão de segurança) continuam manuais.
+
+## CI (GitHub Actions)
+
+Workflow: `.github/workflows/ci.yml`. Dispara em push e pull_request para `main` e manualmente (`workflow_dispatch`).
+Fuso dos jobs: `TZ=America/Rio_Branco`; o cron do Actions seria UTC (não há `schedule` hoje).
+
+- **Job `validate`**: Node 24, pnpm 12.21.0 (via corepack 0.36.0, como nos Dockerfiles), `pnpm install --frozen-lockfile`,
+  `.env` efêmero copiado de `.env.example` (só valores dummy; nenhum secret do repositório) e `pnpm validate`.
+  Roda format:check, lint, typecheck, test, content:validate, web build e docker build dev/prod.
+- **Job `images`** (depois de `validate`, matriz `api` e `web`): build do target `prod`. Só em **push na `main`** publica no GHCR:
+  `ghcr.io/feliperaac/cifrai-api` e `ghcr.io/feliperaac/cifrai-web`. Em pull_request só constrói, não publica.
+- **Não roda no CI**: `--stack` (subir o stack e checar endpoints) e `--db` (Flyway e privilégios no Oracle). Não há Oracle
+  no runner; rode ambos localmente/na VM antes de promover e registre no `validation_log.md`. `content:validate` ainda é placeholder.
+- **Ver o resultado**: aba Actions do repositório, run "CI"; o bloco `RESUMO DA VALIDACAO` aparece no log do passo `pnpm validate`.
+- **Tag da imagem**: `git SHA completo do commit` (ex.: `ghcr.io/feliperaac/cifrai-api:<40 caracteres>`), sem `latest`.
+  Build uma vez, promove a mesma imagem: dev e prod usam a mesma tag, mudando só variáveis de ambiente. Para implantar:
+  `infra/scripts/deploy.sh <ENV> <SHA>` (futuro).
+- Configuração no GitHub: ver o relatório da F0-09 (Settings > Actions > Workflow permissions e visibilidade do pacote GHCR).

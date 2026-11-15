@@ -1,0 +1,130 @@
+# CI do CifrAI (F0-09). Reaproveita `pnpm validate` (infra/scripts/validate.sh): nenhuma logica duplicada aqui.
+#
+# O que roda no CI:  format:check, lint, typecheck, test, content:validate, web build,
+#                    docker build dev e prod (via compose) e, no job `images`, build/publicacao das imagens prod.
+# O que NAO roda:    `--stack` (sobe o stack) e `--db` (Flyway/Oracle). O runner nao tem Oracle nem .env real;
+#                    essas validacoes continuam locais/na VM (veja docs/validacao.md, secao "CI").
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  # Sem `schedule`: nao ha tarefa periodica util hoje (o Dependabot cobre dependencias).
+  # Se um dia houver, lembre que o cron do Actions e em UTC: 06:00 America/Rio_Branco (UTC-5) = '0 11 * * *'.
+
+# Fuso de referencia do projeto na exibicao de logs/datas; o banco segue em UTC.
+env:
+  TZ: America/Rio_Branco
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  # Cancela execucoes antigas de PR/branch; na main nao cancela, para nao abortar uma publicacao pela metade.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  validate:
+    name: validate (qualidade + builds)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      # actions/checkout v7.0.1: oficial do GitHub, clona o repo. Fixada por SHA do commit da tag.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # actions/setup-node v7.1.0: oficial, instala Node 24 (le .nvmrc). Sem cache aqui: o cache do pnpm
+      # exige pnpm ja instalado, o que depende do corepack atualizado abaixo.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+
+      # O corepack embutido no Node 24 (0.34) quebra com pnpm 12; mesma correcao dos Dockerfiles.
+      - name: Instalar pnpm 12.21.0 via corepack 0.36.0
+        run: |
+          npm i -g corepack@0.36.0
+          corepack enable
+          corepack prepare pnpm@12.21.0 --activate
+          pnpm --version
+
+      - name: Localizar o pnpm store
+        id: pnpm-store
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+      # actions/cache v6.1.0: oficial, cache do pnpm store chaveado pelo lockfile.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.pnpm-store.outputs.path }}
+          key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-store-${{ runner.os }}-
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      # .env efemero SO com valores dummy (copia do .env.example): o compose exige ORACLE_* ate para `build`.
+      # Nenhum segredo real nem secret do repositorio; o arquivo morre com o runner.
+      - name: Criar .env efemero (dummy)
+        run: cp .env.example .env
+
+      # Sem --stack e sem --db: nao ha Oracle no runner e o stack nao e subido no CI.
+      - name: pnpm validate
+        run: pnpm validate
+
+  images:
+    name: images (${{ matrix.service }})
+    needs: validate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    # packages: write so existe aqui porque a publicacao acontece neste mesmo job (build uma vez, publica a
+    # mesma imagem). O login no GHCR so ocorre em push na main; em pull_request nada e publicado.
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [api, web]
+    env:
+      # Nomes de imagem em minuscula (exigencia do GHCR).
+      IMAGE: ghcr.io/feliperaac/cifrai-${{ matrix.service }}
+      PUBLICAR: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # docker/setup-buildx-action v4.4.1: oficial da Docker, habilita buildx e o cache type=gha.
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      # docker/login-action v4.8.0: oficial da Docker, login no GHCR com GITHUB_TOKEN (so em push na main).
+      - if: env.PUBLICAR == 'true'
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # docker/build-push-action v7.4.0: oficial da Docker, build (e push condicional) com cache de camadas no gha.
+      # Build uma vez, promove a mesma imagem: esta e a unica construcao da imagem publicada; dev e prod
+      # usam o mesmo digest (so mudam variaveis de ambiente). Tag = SHA completo do commit; sem `latest`.
+      # O cache `RUN --mount=type=cache` do pnpm store nao entra no cache gha (so as camadas).
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: infra/docker/${{ matrix.service }}.Dockerfile
+          target: prod
+          push: ${{ env.PUBLICAR == 'true' }}
+          tags: ${{ env.IMAGE }}:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.title=cifrai-${{ matrix.service }}
+            org.opencontainers.image.description=CifrAI ${{ matrix.service }} (target prod)
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,scope=${{ matrix.service }},mode=max
+          provenance: false

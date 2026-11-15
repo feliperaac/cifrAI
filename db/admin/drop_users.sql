@@ -1,0 +1,12 @@
+-- Reverte create_users.sql. DESTRUTIVO: apaga todos os objetos de CIFRAI_MIG.
+-- Executar como DBA, no PDB. Em prod, faca backup antes.
+WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK
+BEGIN
+  IF SYS_CONTEXT('USERENV','CON_NAME') = 'CDB$ROOT' THEN
+    RAISE_APPLICATION_ERROR(-20001, 'Conectado no CDB$ROOT. Abortado.');
+  END IF;
+END;
+/
+DROP USER CIFRAI_APP CASCADE;
+DROP USER CIFRAI_MIG CASCADE;
+EXIT 0

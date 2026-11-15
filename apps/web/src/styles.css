@@ -1,0 +1,87 @@
+@import 'tailwindcss';
+
+/* Design tokens: unica fonte de cores/raios/espacos. Componentes usam apenas classes mapeadas abaixo. */
+:root {
+  --color-bg: #ffffff;
+  --color-surface: #f1f5f9;
+  --color-border: #cbd5e1;
+  --color-text: #1e293b;
+  --color-text-muted: #475569;
+  --color-primary: #0f766e;
+  --color-on-primary: #ffffff;
+  --color-focus: #1d4ed8;
+  --radius-card: 1rem;
+  --space-tap: 3rem;
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --color-bg: #0f172a;
+  --color-surface: #1e293b;
+  --color-border: #475569;
+  --color-text: #f1f5f9;
+  --color-text-muted: #cbd5e1;
+  --color-primary: #2dd4bf;
+  --color-on-primary: #042f2e;
+  --color-focus: #93c5fd;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']):not([data-theme='dark']) {
+    --color-bg: #0f172a;
+    --color-surface: #1e293b;
+    --color-border: #475569;
+    --color-text: #f1f5f9;
+    --color-text-muted: #cbd5e1;
+    --color-primary: #2dd4bf;
+    --color-on-primary: #042f2e;
+    --color-focus: #93c5fd;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-border: var(--color-border);
+  --color-text: var(--color-text);
+  --color-muted: var(--color-text-muted);
+  --color-primary: var(--color-primary);
+  --color-on-primary: var(--color-on-primary);
+  --radius-card: var(--radius-card);
+  --spacing-tap: var(--space-tap);
+}
+
+html,
+body,
+#root {
+  min-height: 100dvh;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

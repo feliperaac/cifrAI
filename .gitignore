@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+*.dump
+*.dmp
+wallet/
+*.tsbuildinfo
+
+# MCP local (contém GEMINI_API_KEY) e configuração local do Claude Code
+.mcp.json
+.claude/settings.local.json

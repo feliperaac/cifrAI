@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "gemini": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["<CAMINHO>/mcp-server-gemini/dist/enhanced-stdio-server.js"],
+      "env": {
+        "GEMINI_API_KEY": "CHANGE_ME",
+        "GEMINI_DEFAULT_MODEL": "gemini-3.8-flash"
+      }
+    }
+  }
+}

@@ -262,3 +262,6 @@
 - **Resultado:** ✅ o usuário confirmou que os pacotes `cifrai-api` e `cifrai-web` aparecem em "Packages" da conta, ou seja, a publicação das imagens no GHCR pelo job `images` funcionou. O usuário também confirmou que o repositório público é intencional.
 - **Não verificado:** a tag publicada de cada imagem (esperado: SHA completo `3bb65d9b37fbdd44692e8c7b3cc5f422c84ec1ba`) e a visibilidade de cada pacote; o usuário relatou só que os pacotes aparecem
 - **Ações/pendências:** vincular os pacotes ao repositório e definir a visibilidade; proteção da `main`; `docker login ghcr.io` com token `read:packages` na VM de produção (F5-01)
+
+- **Atualização (tags conferidas pelo usuário em `cifrai-api`):** existem 2 tags, `3bb65d9b37fbdd44692e8c7b3cc5f422c84ec1ba` (commit da correção do CI) e `648ab699ee839d4ce22f9ecda4359d115b6e1752` (commit de documentação). Ambas são SHAs completos de commits da `main` e não existe `latest`: o comportamento esperado. A tag de `cifrai-web` não foi relatada, mas os dois jobs de imagem têm a mesma configuração.
+- **Observação:** todo push na `main` publica uma imagem nova, inclusive commits só de documentação. Considerar `paths-ignore` (`**/*.md`, `docs/**`) no workflow e uma política de retenção de versões antigas no GHCR.

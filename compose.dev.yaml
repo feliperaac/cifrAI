@@ -1,0 +1,32 @@
+# Overrides de dev: bind mounts + hot reload + portas diretas para debug.
+services:
+  api:
+    image: cifrai-api-dev:${IMAGE_TAG:-local}
+    build:
+      target: dev
+    environment:
+      NODE_ENV: development
+      # a imagem so instala deps do api; sem isso o pnpm tenta instalar as do web ao rodar.
+      pnpm_config_verify_deps_before_run: 'false'
+    volumes:
+      - ./apps:/repo/apps
+      - ./packages:/repo/packages
+      # preserva node_modules instalados na imagem
+      - /repo/apps/api/node_modules
+    ports:
+      - '${API_DEV_PORT:-3000}:3000'
+
+  web:
+    image: cifrai-web-dev:${IMAGE_TAG:-local}
+    build:
+      target: dev
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./apps:/repo/apps
+      - ./packages:/repo/packages
+      - /repo/apps/web/node_modules
+    # Vite dev server nao cabe nos 128m do compose base (OOM kill, exit 137).
+    mem_limit: 512m
+    ports:
+      - '${WEB_DEV_PORT:-5173}:8080'

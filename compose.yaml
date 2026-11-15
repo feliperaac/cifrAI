@@ -1,0 +1,113 @@
+# Base. Oracle NAO faz parte do compose (roda no host/VM). Servico migrate: F0-05.
+name: cifrai
+
+x-logging: &logging
+  driver: json-file
+  options: { max-size: '10m', max-file: '3' }
+
+services:
+  api:
+    image: cifrai-api:${IMAGE_TAG:-local}
+    build:
+      context: .
+      dockerfile: infra/docker/api.Dockerfile
+      target: prod
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      API_PORT: '3000'
+      ORACLE_HOST: ${ORACLE_HOST:-host.docker.internal}
+      ORACLE_PORT: ${ORACLE_PORT:-1521}
+      ORACLE_SERVICE: ${ORACLE_SERVICE:?defina ORACLE_SERVICE no .env}
+      ORACLE_USER: ${ORACLE_USER:-CIFRAI_APP}
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD:?defina ORACLE_PASSWORD no .env}
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:3000/health >/dev/null || exit 1']
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    mem_limit: 512m
+    cpus: 1.0
+    restart: unless-stopped
+    logging: *logging
+    networks: [internal]
+
+  web:
+    image: cifrai-web:${IMAGE_TAG:-local}
+    build:
+      context: .
+      dockerfile: infra/docker/web.Dockerfile
+      target: prod
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8080/health >/dev/null || exit 1']
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    mem_limit: 128m
+    cpus: 0.5
+    restart: unless-stopped
+    logging: *logging
+    networks: [internal]
+
+  proxy:
+    image: caddy:2.10.2-alpine
+    user: '1000:1000'
+    # Permite usuario nao-root bindar 80/443 dentro do container.
+    sysctls:
+      net.ipv4.ip_unprivileged_port_start: 0
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-localhost}
+      XDG_DATA_HOME: /data
+      XDG_CONFIG_HOME: /config
+    ports:
+      - '${HTTP_PORT:-80}:80'
+      - '${HTTPS_PORT:-443}:443'
+    volumes:
+      - ./infra/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      api: { condition: service_healthy }
+      web: { condition: service_healthy }
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:2019/config/ >/dev/null || exit 1']
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    mem_limit: 128m
+    cpus: 0.5
+    restart: unless-stopped
+    logging: *logging
+    networks: [internal]
+
+  # One-shot: docker compose --profile migrate run --rm migrate [info|validate|migrate]
+  migrate:
+    image: flyway/flyway:13.12.2-alpine
+    profiles: ['migrate']
+    user: '1000:1000'
+    command: ['migrate']
+    environment:
+      FLYWAY_URL: jdbc:oracle:thin:@//${ORACLE_HOST:-host.docker.internal}:${ORACLE_PORT:-1521}/${ORACLE_SERVICE:?defina ORACLE_SERVICE no .env}
+      FLYWAY_USER: ${ORACLE_MIG_USER:-CIFRAI_MIG}
+      FLYWAY_PASSWORD: ${ORACLE_MIG_PASSWORD:?defina ORACLE_MIG_PASSWORD no .env}
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+      FLYWAY_CONNECT_RETRIES: '3'
+    volumes:
+      - ./db/migrations:/flyway/sql:ro
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    mem_limit: 512m
+    cpus: 1.0
+    logging: *logging
+    networks: [internal]
+
+networks:
+  internal:
+
+volumes:
+  caddy_data:
+  caddy_config:

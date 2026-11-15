@@ -1,0 +1,26 @@
+# Proxy unico: web em "/" e api em "/api/*" (prefixo removido).
+# SITE_ADDRESS: "localhost" em dev (tls internal); em prod use o dominio real
+# e remova "tls internal" via compose.prod (certificado automatico).
+{
+	admin 0.0.0.0:2019
+}
+
+{$SITE_ADDRESS:localhost} {
+	tls internal
+	encode zstd gzip
+
+	handle_path /api/* {
+		reverse_proxy api:3000
+	}
+
+	handle {
+		reverse_proxy web:8080
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		Permissions-Policy "microphone=(self)"
+	}
+}

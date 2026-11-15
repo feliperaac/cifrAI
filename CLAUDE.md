@@ -64,6 +64,10 @@ pnpm lint && pnpm typecheck
 pnpm test                      # unit (Vitest)
 pnpm test:e2e                  # Playwright (viewport mobile)
 pnpm content:validate          # valida todo packages/content contra o schema
+pnpm validate                  # pipeline local: format, lint, tipos, testes, build web e imagens Docker
+pnpm validate --stack          # + sobe o stack, confere /api/health, /api/ready e /; sempre derruba ao final
+pnpm validate --db             # + Flyway info/validate e teste de privilégios do CIFRAI_APP (Oracle real)
+                               # detalhes e como registrar evidência: docs/validacao.md
 docker compose -f compose.yaml -f compose.dev.yaml up --build
 docker compose -f compose.yaml -f compose.dev.yaml run --rm migrate
 ```

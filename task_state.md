@@ -26,7 +26,7 @@
 - [x] F0-07 `frontend-ui` Esqueleto PWA: rotas, layout mobile, design tokens, tema claro/escuro, manifest + service worker (VL-0011, VL-0012)
 - [x] F0-08 `qa-validator` Pipeline local de validação (lint, tipos, testes, build docker) + primeiro registro no log (VL-0014)
 - [x] F0-10 `gemini-architect` ADR-0002: modelo de sync por log de eventos (idempotente, XP/streak/revisão no servidor, `guestId` no login). Precede F1-07 e F1-11; decide D1 (VL-0013; ADR-0002 aceito em 2026-11-15)
-- [ ] F0-09 `devops-infra` CI básico (lint, test, build de imagem com tag = SHA)
+- [~] F0-09 `devops-infra` CI básico (lint, test, build de imagem com tag = SHA)
 
 ## F1 — Núcleo do produto (MVP sem áudio)
 - [ ] F1-01 `pedagogy-content` Schema Zod de lição/exercício em `packages/content` + validador (`content:validate`). ADR-0002: o catálogo deve expor XP por lição, número de exercícios e estado "aposentado"

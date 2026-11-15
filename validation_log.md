@@ -234,3 +234,21 @@
 - **Não verificado / limites:** `content:validate` é placeholder (F1-01); Node 24 real; stack só com overlay dev (sem `compose.prod.yaml`); E2E, UI 360×640, teclado/leitor de tela, offline e segurança fora da pipeline; migração "sobre o estado anterior" não está na pipeline (feita manualmente em VL-0010); `--stack` usa portas fixas 8088/8443
 - **Problemas encontrados:** `db/README.md` citava o WORKDIR antigo do container da API (corrigido); o bind mount do teste de privilégios cria um stub vazio de dono root em `apps/api/scripts/app-privileges.mjs` (o script remove ao final)
 - **Ações/pendências:** F0-09 deve reutilizar `infra/scripts/validate.sh` e prover `.env`/variáveis para os builds; seção 4 do `CLAUDE.md` pode ganhar `pnpm validate` (decisão do usuário); adicionar stack de prod quando existir `compose.prod.yaml`
+
+---
+
+## VL-0015 — F0-09 CI GitHub Actions
+- **Data:** 2026-11-15 (fuso de referência: America/Rio_Branco)
+- **Tarefa:** F0-09
+- **Agente:** devops-infra (workflow) + agente principal (diagnóstico, correção e acompanhamento das execuções)
+- **Commit/Tag:** `24ad41a` (workflow), `e134e59`, `3bb65d9` (correção); branch `main`, remoto `feliperaac/cifrAI` (repositório público)
+- **Ambiente:** GitHub Actions, `ubuntu-24.04`, Node 24 (`.nvmrc`), pnpm 12.21.0 via corepack 0.36.0, `TZ=America/Rio_Branco`
+- **Escopo validado:** `.github/workflows/ci.yml` (jobs `validate` e `images`), `.github/dependabot.yml`, seção "CI" de `docs/validacao.md`
+- **Comandos/verificações:** pelo agente: `yaml.safe_load` nos dois YAML e `pnpm validate` local. Pelo agente principal: leitura integral do workflow; conferência dos 6 SHAs das actions contra as tags no GitHub (`git ls-remote`, todos OK); acompanhamento das execuções pela API pública do GitHub
+- **Execução 1** (run 43775882480, commit `e134e59`): ❌ falhou no passo `pnpm validate` (13 s); `images` pulado. Log do job exige login; a causa foi achada reproduzindo localmente em checkouts limpos (Node 24 em Alpine e em Debian glibc, `.env` copiado do exemplo): `.env.example` não tinha `ORACLE_MIG_USER`/`ORACLE_MIG_PASSWORD` e o compose valida o arquivo inteiro (`:?` no serviço `migrate`) até para `build`. Localmente passava porque o `.env` real tem essas variáveis.
+- **Correção:** `.env.example` ganhou `ORACLE_MIG_USER=CIFRAI_MIG` e `ORACLE_MIG_PASSWORD=CHANGE_ME` (commit `3bb65d9`). Verificado em ambiente limpo com `TZ=America/Rio_Branco CI=true pnpm validate`: 8/8 etapas OK, incluindo docker dev (13s) e prod (9s).
+- **Execução 2** (run 43776444066, commit `3bb65d9`): ✅ `validate` success, `images (api)` success, `images (web)` success.
+- **Resultado:** ✅ CI verde no GitHub
+- **NÃO VERIFICADO:** que as imagens existem de fato no GHCR (pacotes nascem privados; a API anônima não os lista; o job de publicação terminou com sucesso em push na `main`); `content:validate` segue placeholder, então o CI não prova nada nessa etapa; etapas `--stack` e `--db` não rodam no CI (sem Oracle no runner); primeiro PR do Dependabot ainda não revisado (pnpm 12 pode se comportar de forma diferente); revisão do `security-reviewer` sobre o workflow não feita
+- **Problemas encontrados:** `pnpm validate` local passou antes do primeiro push porque usava o `.env` real. Para o CI, o certo é testar com o `.env.example`.
+- **Ações/pendências:** o usuário vincula os pacotes `cifrai-api` e `cifrai-web` ao repositório e define a visibilidade; `docker login ghcr.io` com token `read:packages` na VM de produção; cogitar proteção de branch exigindo `validate` e `images`; o build prod roda duas vezes (no `validate` e no `images`); repositório é público (conferir se é o desejado)

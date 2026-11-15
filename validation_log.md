@@ -252,3 +252,13 @@
 - **NÃO VERIFICADO:** que as imagens existem de fato no GHCR (pacotes nascem privados; a API anônima não os lista; o job de publicação terminou com sucesso em push na `main`); `content:validate` segue placeholder, então o CI não prova nada nessa etapa; etapas `--stack` e `--db` não rodam no CI (sem Oracle no runner); primeiro PR do Dependabot ainda não revisado (pnpm 12 pode se comportar de forma diferente); revisão do `security-reviewer` sobre o workflow não feita
 - **Problemas encontrados:** `pnpm validate` local passou antes do primeiro push porque usava o `.env` real. Para o CI, o certo é testar com o `.env.example`.
 - **Ações/pendências:** o usuário vincula os pacotes `cifrai-api` e `cifrai-web` ao repositório e define a visibilidade; `docker login ghcr.io` com token `read:packages` na VM de produção; cogitar proteção de branch exigindo `validate` e `images`; o build prod roda duas vezes (no `validate` e no `images`); repositório é público (conferir se é o desejado)
+
+---
+
+## VL-0016 — F0-09 (complemento): imagens no GHCR e visibilidade do repositório
+- **Data:** 2026-11-15 (fuso de referência: America/Rio_Branco)
+- **Tarefa:** F0-09 (fecha itens "não verificados" de VL-0015)
+- **Agente:** usuário (conferência manual no GitHub); registro pelo agente principal
+- **Resultado:** ✅ o usuário confirmou que os pacotes `cifrai-api` e `cifrai-web` aparecem em "Packages" da conta, ou seja, a publicação das imagens no GHCR pelo job `images` funcionou. O usuário também confirmou que o repositório público é intencional.
+- **Não verificado:** a tag publicada de cada imagem (esperado: SHA completo `3bb65d9b37fbdd44692e8c7b3cc5f422c84ec1ba`) e a visibilidade de cada pacote; o usuário relatou só que os pacotes aparecem
+- **Ações/pendências:** vincular os pacotes ao repositório e definir a visibilidade; proteção da `main`; `docker login ghcr.io` com token `read:packages` na VM de produção (F5-01)

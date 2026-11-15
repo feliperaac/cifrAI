@@ -1,0 +1,26 @@
+{
+  "name": "@cifrai/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsup",
+    "start": "node dist/server.js",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "fastify": "5.12.8",
+    "oracledb": "6.10.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/oracledb": "6.10.1",
+    "tsup": "9.0.0",
+    "tsx": "4.23.15"
+  }
+}

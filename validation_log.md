@@ -382,3 +382,6 @@
 - **Dependência nova:** `fake-indexeddb@6.2.5` em devDependencies do web, só para testes (MIT, sem custo no bundle)
 - **NÃO VERIFICADO:** som real no navegador/celular (autoplay iOS); IndexedDB real do Chrome/WebView (só fake); aparência em 360×640; leitor de tela; migração de versão do banco
 - **Decisões/pendências:** `clientTz`/"hoje" seguem o fuso do aparelho (Rio_Branco só na exibição); o registro local guarda `lessonXp` fora do envelope; `CONTENT_VERSION` vem de `VITE_CONTENT_VERSION` ou 'dev' (web não importa `@cifrai/content` em runtime); se o IndexedDB falhar o store cai para memória e a UI avisa; o outbox da F1-11 exigirá versão 2 do banco; servidor ainda não aplica as regras de XP
+
+### VL-0022 / VL-0023 / VL-0024 — adendo de verificação do usuário (2026-11-15)
+- **F1-04, F1-17 e F1-18:** o usuário testou no navegador e respondeu "tudo certo… fora isso tá ok". Confirmou som dos acordes, pontos (XP) e a trilha. Ressalvas: (1) um exercício "não aparece e pula para outro": é o `build_chord` da fixture, tipo ainda sem renderizador (F1-05), que cai no fallback "ainda não disponível" com "Pular exercício" (comportamento previsto, não bug); (2) falta som ao acertar/errar (nova tarefa F1-19).

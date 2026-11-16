@@ -265,3 +265,18 @@
 
 - **Atualização (tags conferidas pelo usuário em `cifrai-api`):** existem 2 tags, `3bb65d9b37fbdd44692e8c7b3cc5f422c84ec1ba` (commit da correção do CI) e `648ab699ee839d4ce22f9ecda4359d115b6e1752` (commit de documentação). Ambas são SHAs completos de commits da `main` e não existe `latest`: o comportamento esperado. A tag de `cifrai-web` não foi relatada, mas os dois jobs de imagem têm a mesma configuração.
 - **Observação:** todo push na `main` publica uma imagem nova, inclusive commits só de documentação. Considerar `paths-ignore` (`**/*.md`, `docs/**`) no workflow e uma política de retenção de versões antigas no GHCR.
+
+---
+
+## VL-0017 — F1-01 Schema Zod de conteúdo e validador (`content:validate`)
+- **Data:** 2026-11-15 (fuso de referência: America/Rio_Branco)
+- **Tarefa:** F1-01
+- **Agente:** pedagogy-content (reverificado pelo agente principal)
+- **Ambiente:** Node local 20.20.2; reverificação em Node 24.11.1 (Debian glibc, checkout limpo com `.env.example`, `pnpm install --frozen-lockfile`)
+- **Escopo validado:** `packages/content` (`schema.ts`, `validate.ts`, `cli.ts`, `index.ts`, 30 testes novos + fixture, `README.md`, `units/.gitkeep`), script raiz `content:validate`, dependências `zod` 4.6.7 e `tsx` 4.23.15 (versões já usadas em `apps/api`)
+- **Comandos executados:** pelo agente: `pnpm lint`, `typecheck`, `test`, `format:check`, `pnpm content:validate` com zero unidades, prova de falha com `units/u90.json` temporário e `pnpm validate` completo (exit 0). Pelo agente principal, em checkout limpo Node 24: `format:check`, `lint`, `typecheck`, `test`, `content:validate`, e prova de falha própria
+- **Resultado:** ✅ format, lint e typecheck sem erros nos 4 pacotes; testes: content 31 (2 arquivos), web 13, api 14, shared 1; `content:validate` com zero unidades: exit 0 com aviso "Nenhuma unidade encontrada em units/. Passa por enquanto: o conteúdo real é da fase F2"; unidade inválida (`correctOptionId` fora das opções): exit 1 apontando arquivo e campo; após remover o arquivo, exit 0. Nenhum arquivo temporário sobrou no projeto.
+- **Cobertura do schema:** hierarquia curso > unidade > lição > exercício com IDs estáveis (`u02.l03.e01`); 5 tipos de exercício (`multiple_choice`, `match_pairs`, `order`, `build_chord`, `practice_timer`); XP 1 a 100 por lição, `exerciseCount`, `status active|retired`, catálogo com `id`, `unitId`, `status`, `xp`, `exerciseCount` (ADR-0002); `safetyNotice` obrigatório em `technique`; `source` obrigatório em `song`; chaves de letra rejeitadas
+- **NÃO VERIFICADO / LIMITES:** nenhum conteúdo real (F2); `chordId` não é validado contra o catálogo de acordes (vem da F1-02); a checagem de letra pega só nomes de chave, não texto de letra num campo comum (revisão humana necessária); a checagem do `safetyNotice` (pausa, dor, desconforto) é heurística; regras cruzadas de uma unidade só aparecem depois que os erros do Zod são corrigidos; mínimo de 8 exercícios por lição não é validado (máximo é 20)
+- **Decisões do usuário pendentes:** teto de XP por lição (assumido 100, `MAX_LESSON_XP`); lista de categorias (`concept|technique|chord|rhythm|song|review`); XP por exercício além de por lição; mínimo de exercícios por lição; tipos `listen_identify`, `tuner_task` e `rhythm_tap` ficam para a F3
+- **Ações/pendências:** F1-02 valida `chordId` contra o catálogo; F1-05 pode pedir novos campos (opções embaralháveis, imagem/áudio em `multiple_choice`, `build_chord` com cordas mudas); ao mudar o schema, subir `schemaVersion` e atualizar os testes

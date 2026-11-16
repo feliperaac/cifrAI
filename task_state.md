@@ -5,7 +5,7 @@
 
 **Última atualização:** 2026-11-15
 **Fase atual:** F1 — Núcleo do produto (F0 concluída)
-**Próxima tarefa:** F1-01 (Fase 0 concluída)
+**Próxima tarefa:** F1-02 (ChordDiagram)
 **Ambiente:** VM dev (Oracle 19c local) · VM prod: ainda não provisionada
 
 ## Regras de uso
@@ -29,7 +29,7 @@
 - [x] F0-09 `devops-infra` CI básico (lint, test, build de imagem com tag = SHA) (VL-0015)
 
 ## F1 — Núcleo do produto (MVP sem áudio)
-- [ ] F1-01 `pedagogy-content` Schema Zod de lição/exercício em `packages/content` + validador (`content:validate`). ADR-0002: o catálogo deve expor XP por lição, número de exercícios e estado "aposentado"
+- [x] F1-01 `pedagogy-content` Schema Zod de lição/exercício em `packages/content` + validador (`content:validate`). ADR-0002: o catálogo deve expor XP por lição, número de exercícios e estado "aposentado" (VL-0017)
 - [ ] F1-02 `frontend-ui` Componente `ChordDiagram` (SVG, suporte a canhoto, pestana, X/O)
 - [ ] F1-03 `frontend-ui` Componente `Fretboard` interativo (tocar casas para montar acorde)
 - [ ] F1-04 `frontend-ui` Player de lição: máquina de estados, feedback, barra de progresso, tela de resultado (XP)

@@ -3,4 +3,5 @@
 
 interface ImportMetaEnv {
   readonly VITE_ENABLE_SW?: string;
+  readonly VITE_CONTENT_VERSION?: string;
 }

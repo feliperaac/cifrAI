@@ -97,7 +97,7 @@ _Nenhum._
 - **Ambiente:** stack dev no ar (`HTTP_PORT=8088 HTTPS_PORT=8443 docker compose -f compose.yaml -f compose.dev.yaml up -d`); web em `http://192.168.20.234:5173`, galeria em `/dev/acordes`. Portas 80/443 e os containers `arasuper-app` e `proxy-nginx` são do usuário: não tocar. Node local 20 (projeto exige 24: CI e Docker usam 24). pnpm em `~/.local/bin`.
 - **Segredos:** `.env` e `.mcp.json` são do usuário e ficam fora do git; nunca ler nem imprimir valores. Testar o CI sempre com o `.env.example`.
 - **Repositório:** `git@github.com:feliperaac/cifrAI.git` (público), branch `main`. Todo push de código dispara o CI e publica imagens no GHCR; commits só de `*.md` e `docs/**` não disparam.
-- **Em andamento (aguardam o olhar do usuário):** F1-04 (/licao/u99.l01) e F1-17 (header, abertura, ícone). Próximo VL: 0024.
+- **Em andamento (aguardam o olhar do usuário):** F1-04 e F1-18 (/licao/u99.l01: som, pontos, total na Home e no Perfil) e F1-17 (header, abertura, ícone). Próximo VL: 0025.
 - **Aguardam o usuário:** F1-02 (olhar a galeria em 360×640, temas claro/escuro, destro/canhoto), F1-13 (ouvir a v2 do som; parâmetros em `apps/web/src/audio/karplusStrong.ts`; plano B: amostras CC0 com licença verificada; o site Musicca foi DESCARTADO), decisões de F1-01 (teto de XP 100, categorias de lição, XP por exercício, mínimo de exercícios).
 - **Próximas:** F1-16 (identidade visual, precede F1-04 e F1-09), F1-15 (quizzes de identificar acorde), depois F1-03, F1-04, F1-05.
 - **Memórias do projeto** em `~/.claude/projects/-home-felipe-projetos-pessoal-cifrai/memory/` (fuso Rio Branco, CI, stack no ar, referência Duolingo, direção de design).

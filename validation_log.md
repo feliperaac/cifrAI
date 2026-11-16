@@ -370,3 +370,15 @@
 - **Contraste (proposta):** cifras 16,20 claro/16,01 escuro; cobre sobre fundo 6,15/8,01; exceção documentada: boca do violão sobre o corpo no claro 2,63 (detalhe decorativo, roseta delimita)
 - **NÃO VERIFICADO:** lockup e abertura no navegador (tema escuro, `--logo-hole`, `prefers-reduced-motion`), instalação do PWA e recorte maskable em Android, kerning do wordmark ("r"→"A", ajuste manual), busca de anterioridade da marca, daltonismo; `<desc>` do favicon cita cifras que a versão simplificada não mostra
 - **Decisões/pendências:** o usuário escolheu a C; ele precisa olhar o header e a abertura em `http://192.168.20.234:5173/` (aba anônima para ver a abertura) e o ícone instalado
+
+---
+
+## VL-0024 — F1-18 Som nos exercícios e pontos locais (PARCIAL: sem verificação no navegador)
+- **Data:** 2026-11-15 (fuso de referência: America/Rio_Branco)
+- **Tarefa:** F1-18 (resposta ao feedback do usuário: "só não saiu som, e não computou os pontos")
+- **Agente:** frontend-ui (reverificado pelo agente principal)
+- **Escopo validado:** (a) `multiple_choice` com `chordId` e `chordPresentation` (`diagram`, `diagram_with_name`, `audio_only`) no schema do content, validado contra o catálogo (adianta parte da F1-15); prop `hideName` no `ChordDiagram`; `ChordListenButton`; fixture `u99.l01` com 7 exercícios (e06 "Qual acorde é este?", e07 "Ouça"); som só por gesto. (b) envelope de evento do ADR-0002 e `lesson.completed` v1 em `packages/shared/src/events.ts`; `buildXpLedger` pura em `xp.ts` (repetição 20%, teto 500/dia: propostas do ADR, estimativa otimista); `EventStore` (IndexedDB com fallback em memória, `append` atômico e idempotente), store Zustand de progresso, XP total/do dia na tela de resultado, Home e Perfil, datas em America/Rio_Branco
+- **Comando executado (agente principal):** `pnpm validate` completo OK. Testes: shared 55, content 36, web 158, api 14. JS inicial 122,7 kB gzip (era ≈91; orçamento 200 KB; acréscimo vem de zod/zustand/progresso no bundle principal).
+- **Dependência nova:** `fake-indexeddb@6.2.5` em devDependencies do web, só para testes (MIT, sem custo no bundle)
+- **NÃO VERIFICADO:** som real no navegador/celular (autoplay iOS); IndexedDB real do Chrome/WebView (só fake); aparência em 360×640; leitor de tela; migração de versão do banco
+- **Decisões/pendências:** `clientTz`/"hoje" seguem o fuso do aparelho (Rio_Branco só na exibição); o registro local guarda `lessonXp` fora do envelope; `CONTENT_VERSION` vem de `VITE_CONTENT_VERSION` ou 'dev' (web não importa `@cifrai/content` em runtime); se o IndexedDB falhar o store cai para memória e a UI avisa; o outbox da F1-11 exigirá versão 2 do banco; servidor ainda não aplica as regras de XP

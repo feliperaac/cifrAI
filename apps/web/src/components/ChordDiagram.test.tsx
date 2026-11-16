@@ -256,6 +256,24 @@ describe('ChordDiagram nome por extenso', () => {
   });
 });
 
+describe('ChordDiagram hideName', () => {
+  it('esconde caption, cifra no SVG e rótulos acessíveis', () => {
+    const { container } = render(<ChordDiagram chordId="am" hideName playable />);
+    expect(screen.queryByTestId('chord-caption')).toBeNull();
+    expect(container.querySelector('svg text')?.textContent ?? '').not.toMatch(/Am/);
+    expect(container.textContent).not.toMatch(/Am|Lá menor/);
+    expect(screen.getByRole('button', { name: 'Ouvir o acorde' })).toBeInTheDocument();
+    expect(container.querySelector('svg title')?.textContent).toBe('Acorde (nome escondido)');
+  });
+
+  it('não-tocável: o SVG usa rótulo neutro e mantém a descrição das casas', () => {
+    render(<ChordDiagram chordId="am" hideName showFullName={false} />);
+    const label = screen.getByRole('img').getAttribute('aria-label') ?? '';
+    expect(label).toMatch(/^Acorde \(nome escondido\): corda 6 muda/);
+    expect(label).not.toMatch(/Am/);
+  });
+});
+
 describe('ChordDiagram playable', () => {
   it('por padrão não é botão', () => {
     render(<ChordDiagram chord={chord('am')} />);

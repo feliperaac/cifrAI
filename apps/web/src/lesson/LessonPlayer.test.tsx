@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { LessonSchema } from '@cifrai/content';
 import { describe, expect, it, vi } from 'vitest';
+import { createMemoryEventStore } from '../progress/eventStore';
+import { configureProgress } from '../progress/progressStore';
 import { devLesson } from '../pages/dev/fixtureLessons';
 import LessonPage from '../pages/LessonPage';
 import { LessonPlayer } from './LessonPlayer';
@@ -52,7 +54,8 @@ describe('LessonPlayer', () => {
     await user.click(screen.getByRole('button', { name: 'Ver resultado' }));
 
     expect(screen.getByRole('heading', { name: 'Lição concluída!' })).toBeInTheDocument();
-    expect(screen.getByText('Você ganhou 20 XP')).toBeInTheDocument();
+    expect(await screen.findByText('Você ganhou 20 XP')).toBeInTheDocument();
+    expect(screen.getByTestId('xp-total')).toHaveTextContent('Total: 20 XP');
     expect(screen.getByText('Você acertou 1 de 2')).toBeInTheDocument();
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '100');
     await user.click(screen.getByRole('button', { name: 'Voltar para a trilha' }));
@@ -174,5 +177,79 @@ describe('LessonPage', () => {
     await user.click(screen.getByRole('button', { name: 'Ver resultado' }));
     await user.click(screen.getByRole('button', { name: 'Voltar para a trilha' }));
     expect(screen.getByText('trilha')).toBeInTheDocument();
+  });
+});
+
+async function finishLesson(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole('button', { name: 'Começar' }));
+  await user.click(screen.getByRole('radio', { name: '6' }));
+  await user.click(screen.getByRole('button', { name: 'Verificar' }));
+  await user.click(screen.getByRole('button', { name: 'Continuar' }));
+  await user.click(screen.getByRole('radio', { name: 'Mi aguda (1ª)' }));
+  await user.click(screen.getByRole('button', { name: 'Verificar' }));
+  await user.click(screen.getByRole('button', { name: 'Ver resultado' }));
+}
+
+describe('LessonPlayer: pontos (evento lesson.completed)', () => {
+  it('registra um evento ao concluir e mostra o total acumulado', async () => {
+    const store = createMemoryEventStore();
+    configureProgress({ store });
+    const user = userEvent.setup();
+    render(<LessonPlayer lesson={mcOnly} onExit={vi.fn()} />);
+    await finishLesson(user);
+
+    expect(await screen.findByText('Você ganhou 20 XP')).toBeInTheDocument();
+    expect(screen.getByTestId('xp-total')).toHaveTextContent('Total: 20 XP');
+    const records = await store.list();
+    expect(records).toHaveLength(1);
+    expect(records[0]?.event).toMatchObject({
+      type: 'lesson.completed',
+      clientSeq: 1,
+      payload: { lessonId: 'u99.l01', exercisesTotal: 2, exercisesCorrect: 2 },
+    });
+  });
+
+  it('concluir de novo no mesmo dia rende XP reduzido (20%) e soma ao total', async () => {
+    const user = userEvent.setup();
+    const first = render(<LessonPlayer lesson={mcOnly} onExit={vi.fn()} />);
+    await finishLesson(user);
+    await screen.findByText('Você ganhou 20 XP');
+    first.unmount();
+
+    render(<LessonPlayer lesson={mcOnly} onExit={vi.fn()} />);
+    await finishLesson(user);
+    expect(await screen.findByText('Você ganhou 4 XP')).toBeInTheDocument();
+    expect(screen.getByTestId('xp-total')).toHaveTextContent('Total: 24 XP');
+    expect(screen.getByText('Lição repetida hoje: ela rende menos XP.')).toBeInTheDocument();
+  });
+
+  it('falha ao gravar mostra aviso e não promete XP', async () => {
+    configureProgress({
+      store: {
+        kind: 'memory',
+        append: () => Promise.reject(new Error('cota')),
+        list: () => Promise.resolve([]),
+      },
+    });
+    const user = userEvent.setup();
+    render(<LessonPlayer lesson={mcOnly} onExit={vi.fn()} />);
+    await finishLesson(user);
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Não foi possível registrar os pontos',
+    );
+    expect(screen.queryByText(/Você ganhou/)).toBeNull();
+  });
+});
+
+describe('fixture: exercícios com acorde', () => {
+  it('tem pelo menos 2 exercícios de múltipla escolha com acorde (diagrama e só áudio)', () => {
+    const withChord = devLesson.exercises.flatMap((e) =>
+      e.type === 'multiple_choice' && e.chordId !== undefined ? [e] : [],
+    );
+    expect(withChord.length).toBeGreaterThanOrEqual(2);
+    expect(withChord.map((e) => e.chordPresentation)).toEqual(
+      expect.arrayContaining(['diagram', 'audio_only']),
+    );
+    expect(devLesson.exerciseCount).toBe(devLesson.exercises.length);
   });
 });

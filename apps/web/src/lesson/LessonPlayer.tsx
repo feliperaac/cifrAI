@@ -5,16 +5,12 @@ import { CheckIcon } from '../components/ui/CheckIcon';
 import { CrossIcon } from '../components/ui/CrossIcon';
 import { ProgressBar } from '../components/ui/ProgressBar';
 import { t, tp } from '../i18n';
+import { getProgressState, type CompletionOutcome } from '../progress/progressStore';
+import { newUuid } from '../progress/uuid';
 import { resolveExerciseKit } from './exerciseKits';
 import { ExitDialog } from './ExitDialog';
 import { LessonIntro, LessonResult } from './LessonScreens';
-import {
-  correctCount,
-  createLessonState,
-  lessonProgress,
-  lessonReducer,
-  xpEarned,
-} from './lessonMachine';
+import { correctCount, createLessonState, lessonProgress, lessonReducer } from './lessonMachine';
 
 export interface LessonPlayerProps {
   lesson: Lesson;
@@ -26,6 +22,10 @@ export function LessonPlayer({ lesson, onExit }: LessonPlayerProps) {
   const [state, dispatch] = useReducer(lessonReducer, lesson, createLessonState);
   const [response, setResponse] = useState<unknown>(null);
   const [confirmingExit, setConfirmingExit] = useState(false);
+  const [outcome, setOutcome] = useState<CompletionOutcome | null>(null);
+  /** Uma chave de idempotência por execução: remontar o resultado não duplica o XP. */
+  const [eventId] = useState(newUuid);
+  const startedAt = useRef<number | null>(null);
   const footerRef = useRef<HTMLDivElement>(null);
 
   const exercise =
@@ -39,6 +39,29 @@ export function LessonPlayer({ lesson, onExit }: LessonPlayerProps) {
   useEffect(() => {
     if (state.phase === 'feedback') footerRef.current?.querySelector('button')?.focus();
   }, [state.phase]);
+
+  const finished = state.phase === 'result' && state.total > 0;
+  useEffect(() => {
+    if (!finished) return;
+    let cancelled = false;
+    const seconds = startedAt.current === null ? 0 : (Date.now() - startedAt.current) / 1000;
+    void getProgressState()
+      .recordLessonCompleted({
+        eventId,
+        lesson: { id: lesson.id, xp: lesson.xp },
+        exercisesTotal: state.total,
+        exercisesCorrect: correctCount(state),
+        durationSeconds: Math.min(86_400, Math.max(0, Math.round(seconds))),
+      })
+      .then((result) => {
+        if (!cancelled) setOutcome(result);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // O evento descreve o estado final; mudar `state` depois do resultado não reenvia.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [finished, eventId, lesson.id, lesson.xp]);
 
   function check() {
     if (kit === null || response === null) return;
@@ -96,7 +119,7 @@ export function LessonPlayer({ lesson, onExit }: LessonPlayerProps) {
         )}
 
         {state.phase === 'result' && (
-          <LessonResult xp={xpEarned(state)} correct={correctCount(state)} total={state.total} />
+          <LessonResult outcome={outcome} correct={correctCount(state)} total={state.total} />
         )}
       </main>
 
@@ -124,7 +147,13 @@ export function LessonPlayer({ lesson, onExit }: LessonPlayerProps) {
           )}
         </div>
         {state.phase === 'intro' ? (
-          <Button fullWidth onClick={() => dispatch({ type: 'START' })}>
+          <Button
+            fullWidth
+            onClick={() => {
+              startedAt.current = Date.now();
+              dispatch({ type: 'START' });
+            }}
+          >
             {t('lesson.intro.start')}
           </Button>
         ) : state.phase === 'result' ? (

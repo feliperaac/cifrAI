@@ -88,7 +88,11 @@ function checkHierarchy(file: string, unit: Unit, issues: ContentIssue[]): void 
       add(`${lp}.safetyNotice`, 'O aviso deve mencionar pausa, dor ou desconforto.');
     }
     lesson.exercises.forEach((exercise, ei) => {
-      if (exercise.type === 'build_chord' && !hasChord(exercise.chordId)) {
+      if (
+        (exercise.type === 'build_chord' || exercise.type === 'multiple_choice') &&
+        exercise.chordId !== undefined &&
+        !hasChord(exercise.chordId)
+      ) {
         add(
           `${lp}.exercises[${ei}].chordId`,
           `Acorde "${exercise.chordId}" não existe no catálogo de @cifrai/shared.`,

@@ -23,7 +23,7 @@ export const devLesson: Lesson = {
   category: 'concept',
   status: 'active',
   xp: 20,
-  exerciseCount: 5,
+  exerciseCount: 7,
   prerequisites: [],
   exercises: [
     mc(1, 'Quantas cordas tem o violão?', ['4', '6', '8'], 1, 'O violão comum tem 6 cordas.'),
@@ -55,5 +55,32 @@ export const devLesson: Lesson = {
       0,
       'Sessões curtas e frequentes funcionam melhor. Pare se sentir dor nos pulsos ou dedos.',
     ),
+    {
+      id: 'u99.l01.e06',
+      type: 'multiple_choice',
+      prompt: 'Qual acorde é este? Toque no diagrama para ouvir.',
+      chordId: 'am',
+      chordPresentation: 'diagram',
+      options: [
+        { id: 'o1', text: 'Em (Mi menor)' },
+        { id: 'o2', text: 'Am (Lá menor)' },
+        { id: 'o3', text: 'C (Dó maior)' },
+      ],
+      correctOptionId: 'o2',
+      explanation: 'A corda 6 fica muda (X) e os dedos 1, 2 e 3 formam o Lá menor.',
+    },
+    {
+      id: 'u99.l01.e07',
+      type: 'multiple_choice',
+      prompt: 'Ouça o acorde. Ele soa mais triste ou mais alegre?',
+      chordId: 'am',
+      chordPresentation: 'audio_only',
+      options: [
+        { id: 'o1', text: 'Maior (soa mais alegre)' },
+        { id: 'o2', text: 'Menor (soa mais triste)' },
+      ],
+      correctOptionId: 'o2',
+      explanation: 'Os acordes menores soam mais sombrios. Esse é o Lá menor.',
+    },
   ],
 };

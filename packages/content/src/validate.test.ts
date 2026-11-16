@@ -196,6 +196,31 @@ describe('regras dos exercícios', () => {
       'não existe no catálogo',
     );
   });
+  it('multiple_choice com chordId do catálogo e apresentação válida passa', () => {
+    const data = edited('lessons.0.exercises.0.chordId', 'em');
+    edited('lessons.0.exercises.0.chordPresentation', 'audio_only', data);
+    expect(run(data)).toEqual([]);
+  });
+  it('multiple_choice sem chordId continua válido (retrocompatível)', () => {
+    expect(run(fixture())).toEqual([]);
+  });
+  it('multiple_choice com chordId inexistente no catálogo', () => {
+    expectIssue(
+      edited('lessons.0.exercises.0.chordId', 'zz9'),
+      'lessons[0].exercises[0].chordId',
+      'não existe no catálogo',
+    );
+  });
+  it('chordPresentation sem chordId e valor desconhecido são rejeitados', () => {
+    expectIssue(
+      edited('lessons.0.exercises.0.chordPresentation', 'diagram'),
+      'lessons[0].exercises[0].chordPresentation',
+      'exige chordId',
+    );
+    const data = edited('lessons.0.exercises.0.chordId', 'em');
+    edited('lessons.0.exercises.0.chordPresentation', 'hologram', data);
+    expect(run(data).length).toBeGreaterThan(0);
+  });
   it('build_chord não aceita diagrama embutido (strict)', () => {
     const issues = run(edited('lessons.1.exercises.0.frets', [0, 2, 2, 0, 0, 0]));
     expect(issues.some((i) => i.path === 'lessons[1].exercises[0]')).toBe(true);

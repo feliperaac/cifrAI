@@ -61,3 +61,13 @@ describe('galeria de acordes (dev)', () => {
     expect(document.querySelectorAll('[data-kind="finger"] text')).toHaveLength(0);
   });
 });
+
+describe('XP acumulado', () => {
+  it('Home e Perfil mostram o progresso local', async () => {
+    const first = renderAt('/');
+    expect(await screen.findByText('XP de hoje: 0 XP')).toBeInTheDocument();
+    first.unmount();
+    renderAt('/perfil');
+    expect(await screen.findByRole('heading', { name: 'Seu progresso' })).toBeInTheDocument();
+  });
+});

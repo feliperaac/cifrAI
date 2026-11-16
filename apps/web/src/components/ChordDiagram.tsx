@@ -28,6 +28,8 @@ export interface ChordDiagramProps {
   showFingers?: boolean;
   /** Mostra o nome por extenso acima do desenho (ex.: "Am (Lá menor)"). Padrão: true. */
   showFullName?: boolean;
+  /** Esconde qualquer nome (caption, cifra no SVG e rótulos acessíveis): o nome é a resposta do exercício. */
+  hideName?: boolean;
   /** Substitui o título acessível (por padrão "Acorde Am (Lá menor)"). */
   title?: string;
   /** Torna o bloco um botão que toca o acorde (strum). Padrão: false. */
@@ -67,7 +69,8 @@ export function describeChord(chord: ChordShape, showFingers: boolean): string {
 }
 
 /** Sem `showFullName` só a cifra vai para o leitor de tela: o nome pode ser a resposta do exercício. */
-function chordLabel(chord: ChordShape, showFullName: boolean): string {
+function chordLabel(chord: ChordShape, showFullName: boolean, hideName = false): string {
+  if (hideName) return t('chord.labelHidden');
   return tp('chord.label', { name: showFullName ? chordDisplayName(chord).rotulo : chord.name });
 }
 
@@ -77,6 +80,7 @@ interface ChordSvgProps {
   size?: number;
   showFingers: boolean;
   showFullName: boolean;
+  hideName: boolean;
   title?: string;
   /** Dentro de um botão: o botão carrega o nome e a descrição. */
   decorative?: boolean;
@@ -89,9 +93,9 @@ const PLAY_ERROR_KEYS = {
 } as const satisfies Record<string, MessageKey>;
 
 function PlayableChord(props: Omit<ChordSvgProps, 'decorative'>) {
-  const { shape, showFingers, showFullName, title } = props;
+  const { shape, showFingers, showFullName, hideName, title } = props;
   const player = useChordPlayer();
-  const name = title ?? chordLabel(shape, showFullName);
+  const name = title ?? chordLabel(shape, showFullName, hideName);
   const descId = `chord-desc-${shape.id}`;
   const statusKey: MessageKey | null =
     player.error !== null
@@ -104,14 +108,18 @@ function PlayableChord(props: Omit<ChordSvgProps, 'decorative'>) {
 
   return (
     <div className="flex flex-col items-stretch gap-1">
-      {showFullName && <ChordCaption shape={shape} />}
+      {showFullName && !hideName && <ChordCaption shape={shape} />}
       <button
         type="button"
         className="chord-play min-h-tap min-w-tap cursor-pointer rounded-card bg-transparent p-0 text-inherit"
         data-state={player.state}
-        aria-label={tp('chord.play.label', {
-          name: showFullName ? chordDisplayName(shape).rotulo : shape.name,
-        })}
+        aria-label={
+          hideName
+            ? t('chord.play.labelHidden')
+            : tp('chord.play.label', {
+                name: showFullName ? chordDisplayName(shape).rotulo : shape.name,
+              })
+        }
         aria-describedby={descId}
         aria-busy={player.state === 'loading'}
         onPointerEnter={player.warmUp}
@@ -159,6 +167,7 @@ export function ChordDiagram({
   size,
   showFingers = true,
   showFullName = true,
+  hideName = false,
   title,
   playable = false,
 }: ChordDiagramProps) {
@@ -169,13 +178,14 @@ export function ChordDiagram({
     leftHanded,
     showFingers,
     showFullName,
+    hideName,
     ...(size === undefined ? {} : { size }),
     ...(title === undefined ? {} : { title }),
   };
   if (playable) return <PlayableChord {...props} />;
   return (
     <div className="flex flex-col items-stretch gap-1">
-      {showFullName && <ChordCaption shape={shape} />}
+      {showFullName && !hideName && <ChordCaption shape={shape} />}
       <ChordSvg {...props} />
     </div>
   );
@@ -187,13 +197,14 @@ function ChordSvg({
   size,
   showFingers,
   showFullName,
+  hideName,
   title,
   decorative = false,
 }: ChordSvgProps) {
   const rows = rowCount(shape);
-  const topOffset = showFullName ? NAME_BAND : 0;
+  const topOffset = showFullName || hideName ? NAME_BAND : 0;
   const height = viewHeight(rows) - topOffset;
-  const accessibleTitle = title ?? chordLabel(shape, showFullName);
+  const accessibleTitle = title ?? chordLabel(shape, showFullName, hideName);
   const description = `${accessibleTitle}: ${describeChord(shape, showFingers)}`;
   const { barre, baseFret } = shape;
   const highPosition = baseFret > 1;
@@ -224,7 +235,7 @@ function ChordSvg({
       <title>{accessibleTitle}</title>
       <desc>{description}</desc>
 
-      {!showFullName && (
+      {!showFullName && !hideName && (
         <text
           x={VIEW_WIDTH / 2}
           y={NAME_Y}

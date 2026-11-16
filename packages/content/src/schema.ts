@@ -55,11 +55,23 @@ const exerciseBase = {
 
 const optionSchema = z.strictObject({ id: z.string().regex(/^[a-z0-9]{1,8}$/), text: text(200) });
 
+/**
+ * Como o acorde de um `multiple_choice` é apresentado (só vale com `chordId`):
+ * - `diagram`: diagrama tocável com a cifra escondida até a resposta (o nome costuma ser a resposta);
+ * - `diagram_with_name`: diagrama tocável com o nome por extenso sempre visível;
+ * - `audio_only`: só o botão de ouvir, sem diagrama (exercício "ouça e escolha").
+ */
+export const CHORD_PRESENTATIONS = ['diagram', 'diagram_with_name', 'audio_only'] as const;
+export const ChordPresentationSchema = z.enum(CHORD_PRESENTATIONS);
+
 export const MultipleChoiceExerciseSchema = z.strictObject({
   ...exerciseBase,
   type: z.literal('multiple_choice'),
   options: z.array(optionSchema).min(2).max(6),
   correctOptionId: z.string(),
+  /** Opcional e retrocompatível: acorde do catálogo de `@cifrai/shared`, que o aluno pode ouvir. */
+  chordId: ChordIdSchema.optional(),
+  chordPresentation: ChordPresentationSchema.optional(),
 });
 
 export const MatchPairsExerciseSchema = z.strictObject({
@@ -123,6 +135,9 @@ export const ExerciseSchema = z
       }
       if (!ids.includes(exercise.correctOptionId)) {
         fail(['correctOptionId'], 'A resposta correta não está entre as opções.');
+      }
+      if (exercise.chordPresentation !== undefined && exercise.chordId === undefined) {
+        fail(['chordPresentation'], 'chordPresentation exige chordId.');
       }
     } else if (exercise.type === 'match_pairs') {
       if (duplicates(exercise.pairs.map((pair) => pair.left)).length > 0) {
@@ -202,6 +217,7 @@ export type MatchPairsExercise = z.infer<typeof MatchPairsExerciseSchema>;
 export type OrderExercise = z.infer<typeof OrderExerciseSchema>;
 export type BuildChordExercise = z.infer<typeof BuildChordExerciseSchema>;
 export type PracticeTimerExercise = z.infer<typeof PracticeTimerExerciseSchema>;
+export type ChordPresentation = z.infer<typeof ChordPresentationSchema>;
 export type ExerciseType = Exercise['type'];
 export type Source = z.infer<typeof SourceSchema>;
 export type Lesson = z.infer<typeof LessonSchema>;

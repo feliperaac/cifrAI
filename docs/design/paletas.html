@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="pt-BR">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>CifrAI · comparação de paletas (F1-16)</title>
+  <style>
+    @font-face {
+      font-family: Bricolage;
+      src: url(fonts/bricolage-grotesque-latin-wght-normal.woff2);
+      font-weight: 200 800;
+    }
+    @font-face {
+      font-family: Figtree;
+      src: url(fonts/figtree-latin-wght-normal.woff2);
+      font-weight: 300 900;
+    }
+    .p-A-light {
+      --bg: #fbf5ea;
+      --surface: #f2e9d8;
+      --raised: #ffffff;
+      --border: #7a6a55;
+      --text: #1e1812;
+      --muted: #5a4c3c;
+      --primary: #a8330f;
+      --on-primary: #fff8ef;
+      --accent: #f2b22e;
+      --on-accent: #1e1812;
+      --success: #1b6b43;
+      --danger: #a8201a;
+      --focus: #0b4fb3;
+    }
+    .p-A-dark {
+      --bg: #17120d;
+      --surface: #241d15;
+      --raised: #2f261b;
+      --border: #9c8a72;
+      --text: #f6eddd;
+      --muted: #c7b79f;
+      --primary: #ff8a5b;
+      --on-primary: #2a0e03;
+      --accent: #f5be4a;
+      --on-accent: #1e1812;
+      --success: #5fd49a;
+      --danger: #ff8f86;
+      --focus: #8db9ff;
+    }
+    .p-B-light {
+      --bg: #f3f7f2;
+      --surface: #e3ece2;
+      --raised: #ffffff;
+      --border: #5b7164;
+      --text: #0d1f18;
+      --muted: #41564b;
+      --primary: #0a5c49;
+      --on-primary: #f3fbef;
+      --accent: #c8f25b;
+      --on-accent: #0d1f18;
+      --success: #17693f;
+      --danger: #b3261e;
+      --focus: #1747b5;
+    }
+    .p-B-dark {
+      --bg: #0a1511;
+      --surface: #122019;
+      --raised: #1a2e24;
+      --border: #7e9c8b;
+      --text: #eaf4e6;
+      --muted: #a9c2b2;
+      --primary: #c8f25b;
+      --on-primary: #0d1f18;
+      --accent: #ff7a59;
+      --on-accent: #1b0903;
+      --success: #6edba0;
+      --danger: #ff938a;
+      --focus: #9dbfff;
+    }
+
+    body {
+      margin: 0;
+      font-family: Figtree, system-ui, sans-serif;
+      background: #888;
+      padding: 12px;
+    }
+    h1 {
+      font: 700 1.2rem Bricolage;
+      color: #fff;
+      margin: 0 0 4px;
+    }
+    .hint {
+      color: #fff;
+      margin: 0 0 12px;
+    }
+    button.replay {
+      min-height: 48px;
+      padding: 0 20px;
+      font: 700 1rem Figtree;
+      border-radius: 12px;
+      border: 2px solid #000;
+      background: #fff;
+      cursor: pointer;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .panel {
+      background: var(--bg);
+      color: var(--text);
+      border-radius: 20px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      border: 1px solid var(--border);
+    }
+    .tag {
+      margin: 0;
+      font-weight: 700;
+      color: var(--muted);
+      font-size: 0.8rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .open {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .strings {
+      width: 72px;
+      height: 26px;
+    }
+    .strings line {
+      stroke: var(--primary);
+      stroke-width: 1.6;
+      stroke-linecap: round;
+    }
+    .word {
+      font: 800 2rem/1 Bricolage;
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+    .word span {
+      color: var(--primary);
+    }
+    .row {
+      display: flex;
+      gap: 8px;
+    }
+    .xp {
+      background: var(--accent);
+      color: var(--on-accent);
+      border: 2px solid var(--on-accent);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font: 700 1rem Figtree;
+    }
+    .xp b {
+      font: 800 1.25rem Bricolage;
+    }
+    .streak {
+      border: 2px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-weight: 700;
+    }
+    .card {
+      background: var(--raised);
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 4px 0 var(--border);
+    }
+    .card h3 {
+      font: 700 1.375rem Bricolage;
+      margin: 0;
+    }
+    .card p {
+      margin: 4px 0;
+      color: var(--muted);
+    }
+    .dg {
+      width: 100%;
+      max-width: 200px;
+      display: block;
+      margin: 8px auto;
+    }
+    .bar {
+      height: 14px;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      overflow: hidden;
+    }
+    .bar i {
+      display: block;
+      height: 100%;
+      background: var(--primary);
+    }
+    .fb {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-weight: 600;
+      border: 2px solid;
+      background: var(--surface);
+    }
+    .ok {
+      color: var(--success);
+      border-color: var(--success);
+    }
+    .bad {
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+    .btns {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      min-height: 48px;
+      min-width: 48px;
+      padding: 0 22px;
+      border-radius: 14px;
+      font: 700 1rem Figtree;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+    .pri {
+      background: var(--primary);
+      color: var(--on-primary);
+      box-shadow: 0 4px 0 var(--text);
+      transition:
+        transform 0.12s,
+        box-shadow 0.12s;
+    }
+    .pri:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 var(--text);
+    }
+    .sec {
+      background: transparent;
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .btn:disabled {
+      background: var(--surface);
+      color: var(--muted);
+      box-shadow: none;
+      border-color: var(--border);
+      cursor: not-allowed;
+    }
+    .lnk {
+      color: var(--primary);
+      font-weight: 700;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+    }
+    :focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+    /* abertura coreografada: ~900ms, dispara ao carregar e no botão */
+    .go .strings line {
+      stroke-dasharray: 200;
+      stroke-dashoffset: 200;
+      animation: draw 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) calc(var(--i) * 60ms) forwards;
+    }
+    .go .word {
+      opacity: 0;
+      transform: translateY(8px);
+      animation: rise 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) 0.35s forwards;
+    }
+    .go .row,
+    .go .card,
+    .go .fb,
+    .go .btns,
+    .go .lnk {
+      opacity: 0;
+      animation: rise 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+    }
+    .go .row {
+      animation-delay: 0.5s;
+    }
+    .go .card {
+      animation-delay: 0.58s;
+    }
+    .go .fb {
+      animation-delay: 0.68s;
+    }
+    .go .btns {
+      animation-delay: 0.76s;
+    }
+    .go .lnk {
+      animation-delay: 0.8s;
+    }
+    @keyframes draw {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .go * {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+        stroke-dashoffset: 0 !important;
+      }
+    }
+  </style>
+  <body>
+    <h1>CifrAI · F1-16 · comparação de paletas (protótipo estático, não é o app)</h1>
+    <p class="hint">
+      A = Cedro e Cobre (quente, madeira de violão). B = Pinho e Limão (verde profundo + lima
+      elétrica). Fontes: Bricolage Grotesque + Figtree.
+    </p>
+    <button class="replay" onclick="r()">Repetir abertura</button>
+    <main class="grid go" id="g">
+      <section class="panel p-A-light">
+        <p class="tag">A · Cedro e Cobre · claro</p>
+        <div class="open">
+          <svg viewBox="0 0 200 36" class="strings" aria-hidden="true">
+            <line x1="0" y1="3" x2="200" y2="3" style="--i: 0" />
+            <line x1="0" y1="9" x2="200" y2="9" style="--i: 1" />
+            <line x1="0" y1="15" x2="200" y2="15" style="--i: 2" />
+            <line x1="0" y1="21" x2="200" y2="21" style="--i: 3" />
+            <line x1="0" y1="27" x2="200" y2="27" style="--i: 4" />
+            <line x1="0" y1="33" x2="200" y2="33" style="--i: 5" />
+          </svg>
+          <h2 class="word">Cifr<span>AI</span></h2>
+        </div>
+        <div class="row">
+          <span class="xp"><b>+12</b> XP</span><span class="streak">3 dias</span>
+        </div>
+        <div class="card">
+          <h3>Dó maior</h3>
+          <p>Dedo 1 na casa 1 da corda 2.</p>
+          <svg viewBox="0 0 120 90" class="dg" role="img" aria-label="Diagrama de exemplo">
+            <g stroke="var(--text)" stroke-width="2">
+              <line x1="20" y1="10" x2="20" y2="80" />
+              <line x1="40" y1="10" x2="40" y2="80" />
+              <line x1="60" y1="10" x2="60" y2="80" />
+              <line x1="80" y1="10" x2="80" y2="80" />
+              <line x1="100" y1="10" x2="100" y2="80" />
+              <line x1="20" y1="10" x2="100" y2="10" stroke-width="5" />
+              <line x1="20" y1="35" x2="100" y2="35" />
+              <line x1="20" y1="58" x2="100" y2="58" />
+            </g>
+            <g fill="var(--primary)">
+              <circle cx="40" cy="46" r="8" />
+              <circle cx="60" cy="23" r="8" />
+              <circle cx="80" cy="46" r="8" />
+            </g>
+            <g fill="var(--on-primary)" font-size="10" font-weight="700" text-anchor="middle">
+              <text x="40" y="50">1</text>
+              <text x="60" y="27">2</text>
+              <text x="80" y="50">3</text>
+            </g>
+          </svg>
+          <div
+            class="bar"
+            role="progressbar"
+            aria-valuenow="60"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-label="Progresso da lição"
+          >
+            <i style="width: 60%"></i>
+          </div>
+        </div>
+        <div class="fb ok"><span aria-hidden="true">✓</span> Certo! Esse é o Dó maior.</div>
+        <div class="fb bad">
+          <span aria-hidden="true">✕</span> Quase. A corda 6 fica abafada (X).
+        </div>
+        <div class="btns">
+          <button class="btn pri">Continuar</button><button class="btn sec">Pular</button
+          ><button class="btn pri" disabled>Desativado</button>
+        </div>
+        <a class="lnk" href="#">Link com foco</a>
+      </section>
+      <section class="panel p-A-dark">
+        <p class="tag">A · Cedro e Cobre · escuro</p>
+        <div class="open">
+          <svg viewBox="0 0 200 36" class="strings" aria-hidden="true">
+            <line x1="0" y1="3" x2="200" y2="3" style="--i: 0" />
+            <line x1="0" y1="9" x2="200" y2="9" style="--i: 1" />
+            <line x1="0" y1="15" x2="200" y2="15" style="--i: 2" />
+            <line x1="0" y1="21" x2="200" y2="21" style="--i: 3" />
+            <line x1="0" y1="27" x2="200" y2="27" style="--i: 4" />
+            <line x1="0" y1="33" x2="200" y2="33" style="--i: 5" />
+          </svg>
+          <h2 class="word">Cifr<span>AI</span></h2>
+        </div>
+        <div class="row">
+          <span class="xp"><b>+12</b> XP</span><span class="streak">3 dias</span>
+        </div>
+        <div class="card">
+          <h3>Dó maior</h3>
+          <p>Dedo 1 na casa 1 da corda 2.</p>
+          <svg viewBox="0 0 120 90" class="dg" role="img" aria-label="Diagrama de exemplo">
+            <g stroke="var(--text)" stroke-width="2">
+              <line x1="20" y1="10" x2="20" y2="80" />
+              <line x1="40" y1="10" x2="40" y2="80" />
+              <line x1="60" y1="10" x2="60" y2="80" />
+              <line x1="80" y1="10" x2="80" y2="80" />
+              <line x1="100" y1="10" x2="100" y2="80" />
+              <line x1="20" y1="10" x2="100" y2="10" stroke-width="5" />
+              <line x1="20" y1="35" x2="100" y2="35" />
+              <line x1="20" y1="58" x2="100" y2="58" />
+            </g>
+            <g fill="var(--primary)">
+              <circle cx="40" cy="46" r="8" />
+              <circle cx="60" cy="23" r="8" />
+              <circle cx="80" cy="46" r="8" />
+            </g>
+            <g fill="var(--on-primary)" font-size="10" font-weight="700" text-anchor="middle">
+              <text x="40" y="50">1</text>
+              <text x="60" y="27">2</text>
+              <text x="80" y="50">3</text>
+            </g>
+          </svg>
+          <div
+            class="bar"
+            role="progressbar"
+            aria-valuenow="60"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-label="Progresso da lição"
+          >
+            <i style="width: 60%"></i>
+          </div>
+        </div>
+        <div class="fb ok"><span aria-hidden="true">✓</span> Certo! Esse é o Dó maior.</div>
+        <div class="fb bad">
+          <span aria-hidden="true">✕</span> Quase. A corda 6 fica abafada (X).
+        </div>
+        <div class="btns">
+          <button class="btn pri">Continuar</button><button class="btn sec">Pular</button
+          ><button class="btn pri" disabled>Desativado</button>
+        </div>
+        <a class="lnk" href="#">Link com foco</a>
+      </section>
+      <section class="panel p-B-light">
+        <p class="tag">B · Pinho e Limão · claro</p>
+        <div class="open">
+          <svg viewBox="0 0 200 36" class="strings" aria-hidden="true">
+            <line x1="0" y1="3" x2="200" y2="3" style="--i: 0" />
+            <line x1="0" y1="9" x2="200" y2="9" style="--i: 1" />
+            <line x1="0" y1="15" x2="200" y2="15" style="--i: 2" />
+            <line x1="0" y1="21" x2="200" y2="21" style="--i: 3" />
+            <line x1="0" y1="27" x2="200" y2="27" style="--i: 4" />
+            <line x1="0" y1="33" x2="200" y2="33" style="--i: 5" />
+          </svg>
+          <h2 class="word">Cifr<span>AI</span></h2>
+        </div>
+        <div class="row">
+          <span class="xp"><b>+12</b> XP</span><span class="streak">3 dias</span>
+        </div>
+        <div class="card">
+          <h3>Dó maior</h3>
+          <p>Dedo 1 na casa 1 da corda 2.</p>
+          <svg viewBox="0 0 120 90" class="dg" role="img" aria-label="Diagrama de exemplo">
+            <g stroke="var(--text)" stroke-width="2">
+              <line x1="20" y1="10" x2="20" y2="80" />
+              <line x1="40" y1="10" x2="40" y2="80" />
+              <line x1="60" y1="10" x2="60" y2="80" />
+              <line x1="80" y1="10" x2="80" y2="80" />
+              <line x1="100" y1="10" x2="100" y2="80" />
+              <line x1="20" y1="10" x2="100" y2="10" stroke-width="5" />
+              <line x1="20" y1="35" x2="100" y2="35" />
+              <line x1="20" y1="58" x2="100" y2="58" />
+            </g>
+            <g fill="var(--primary)">
+              <circle cx="40" cy="46" r="8" />
+              <circle cx="60" cy="23" r="8" />
+              <circle cx="80" cy="46" r="8" />
+            </g>
+            <g fill="var(--on-primary)" font-size="10" font-weight="700" text-anchor="middle">
+              <text x="40" y="50">1</text>
+              <text x="60" y="27">2</text>
+              <text x="80" y="50">3</text>
+            </g>
+          </svg>
+          <div
+            class="bar"
+            role="progressbar"
+            aria-valuenow="60"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-label="Progresso da lição"
+          >
+            <i style="width: 60%"></i>
+          </div>
+        </div>
+        <div class="fb ok"><span aria-hidden="true">✓</span> Certo! Esse é o Dó maior.</div>
+        <div class="fb bad">
+          <span aria-hidden="true">✕</span> Quase. A corda 6 fica abafada (X).
+        </div>
+        <div class="btns">
+          <button class="btn pri">Continuar</button><button class="btn sec">Pular</button
+          ><button class="btn pri" disabled>Desativado</button>
+        </div>
+        <a class="lnk" href="#">Link com foco</a>
+      </section>
+      <section class="panel p-B-dark">
+        <p class="tag">B · Pinho e Limão · escuro</p>
+        <div class="open">
+          <svg viewBox="0 0 200 36" class="strings" aria-hidden="true">
+            <line x1="0" y1="3" x2="200" y2="3" style="--i: 0" />
+            <line x1="0" y1="9" x2="200" y2="9" style="--i: 1" />
+            <line x1="0" y1="15" x2="200" y2="15" style="--i: 2" />
+            <line x1="0" y1="21" x2="200" y2="21" style="--i: 3" />
+            <line x1="0" y1="27" x2="200" y2="27" style="--i: 4" />
+            <line x1="0" y1="33" x2="200" y2="33" style="--i: 5" />
+          </svg>
+          <h2 class="word">Cifr<span>AI</span></h2>
+        </div>
+        <div class="row">
+          <span class="xp"><b>+12</b> XP</span><span class="streak">3 dias</span>
+        </div>
+        <div class="card">
+          <h3>Dó maior</h3>
+          <p>Dedo 1 na casa 1 da corda 2.</p>
+          <svg viewBox="0 0 120 90" class="dg" role="img" aria-label="Diagrama de exemplo">
+            <g stroke="var(--text)" stroke-width="2">
+              <line x1="20" y1="10" x2="20" y2="80" />
+              <line x1="40" y1="10" x2="40" y2="80" />
+              <line x1="60" y1="10" x2="60" y2="80" />
+              <line x1="80" y1="10" x2="80" y2="80" />
+              <line x1="100" y1="10" x2="100" y2="80" />
+              <line x1="20" y1="10" x2="100" y2="10" stroke-width="5" />
+              <line x1="20" y1="35" x2="100" y2="35" />
+              <line x1="20" y1="58" x2="100" y2="58" />
+            </g>
+            <g fill="var(--primary)">
+              <circle cx="40" cy="46" r="8" />
+              <circle cx="60" cy="23" r="8" />
+              <circle cx="80" cy="46" r="8" />
+            </g>
+            <g fill="var(--on-primary)" font-size="10" font-weight="700" text-anchor="middle">
+              <text x="40" y="50">1</text>
+              <text x="60" y="27">2</text>
+              <text x="80" y="50">3</text>
+            </g>
+          </svg>
+          <div
+            class="bar"
+            role="progressbar"
+            aria-valuenow="60"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-label="Progresso da lição"
+          >
+            <i style="width: 60%"></i>
+          </div>
+        </div>
+        <div class="fb ok"><span aria-hidden="true">✓</span> Certo! Esse é o Dó maior.</div>
+        <div class="fb bad">
+          <span aria-hidden="true">✕</span> Quase. A corda 6 fica abafada (X).
+        </div>
+        <div class="btns">
+          <button class="btn pri">Continuar</button><button class="btn sec">Pular</button
+          ><button class="btn pri" disabled>Desativado</button>
+        </div>
+        <a class="lnk" href="#">Link com foco</a>
+      </section>
+    </main>
+    <script>
+      function r() {
+        const g = document.getElementById('g');
+        g.classList.remove('go');
+        void g.offsetWidth;
+        g.classList.add('go');
+      }
+    </script>
+  </body>
+</html>

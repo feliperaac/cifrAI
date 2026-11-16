@@ -327,3 +327,16 @@
 
 ### VL-0018 / VL-0019 — adendo de verificação do usuário (2026-11-15)
 - **F1-02 e F1-13:** o usuário olhou `/dev/acordes` e ouviu o som (v2) e respondeu "tudo conferido e certo". Fecham as pendências "NÃO VERIFICADO" de aparência e de timbre. Latência, WebView Android/iOS e leitor de tela real seguem para F4-03 e revisão de acessibilidade.
+
+---
+
+## VL-0021 — F1-16 Identidade visual "Cedro e Cobre" (PARCIAL: sem verificação visual)
+- **Data:** 2026-11-15 (fuso de referência: America/Rio_Branco)
+- **Tarefa:** F1-16
+- **Agente:** frontend-ui (reverificado pelo agente principal)
+- **Ambiente:** Node local 20.20.2; imagens Docker em Node 24; stack dev no ar (hot reload)
+- **Escopo validado:** proposta e escolha da direção A (`docs/design/identidade-visual.md`, `paletas.html`, `contraste.mjs`); tokens claro/escuro e escalas em `apps/web/src/styles.css`; fontes Bricolage Grotesque e Figtree (OFL-1.1) self-hosted com precache e `CREDITS.md`; abertura "Afinação" uma vez por sessão com fallback `prefers-reduced-motion`; `Button`, `Card`, `ProgressBar`, `XpBadge`; `ChordDiagram` e galeria nos tokens novos. Nenhuma dependência JS nova.
+- **Comandos executados (agente principal):** `pnpm validate` completo sobre o código final → format, lint, typecheck, test, content:validate, web build, docker dev e prod, todos OK (formatei antes os arquivos de `docs/design`, que falhavam no format:check). O agente rodou antes `contraste.mjs` (0 pares falham, mais 12 pares extras calculados) e os testes (web 90, api 14, content 32).
+- **Resultado:** ✅ JS inicial ≈87 kB gzip (orçamento 200 KB), CSS 4,96 kB gzip, precache 18 entradas/368 KiB com woff2
+- **NÃO VERIFICADO:** aparência real (abertura, fontes carregando, hover/pressed), contraste dos estados hover (`filter: brightness`), Android, Lighthouse/LCP, teclado e leitor de tela, service worker em runtime
+- **Decisões/pendências:** o usuário aprovou a direção A por "pode continuar" à recomendação (trocar para B é nova rodada); ícones PWA ainda na cor teal antiga (regerar); `BottomNav` e `ThemeSwitcher` só herdam os tokens; o usuário precisa olhar `http://192.168.20.234:5173/` e `/dev/acordes` nos dois temas, em 360×640

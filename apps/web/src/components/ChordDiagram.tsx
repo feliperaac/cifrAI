@@ -137,7 +137,7 @@ function ChordCaption({ shape }: { shape: ChordShape }) {
   const { cifra, nomePt } = chordDisplayName(shape);
   return (
     <p
-      className="m-0 flex flex-wrap items-baseline justify-center gap-x-1.5 rounded-card bg-bg px-2 py-1 text-center text-balance [overflow-wrap:anywhere]"
+      className="m-0 flex flex-wrap items-baseline justify-center gap-x-1.5 rounded-card bg-bg px-2 py-1 text-center font-display text-balance [overflow-wrap:anywhere]"
       data-testid="chord-caption"
       aria-hidden="true"
     >

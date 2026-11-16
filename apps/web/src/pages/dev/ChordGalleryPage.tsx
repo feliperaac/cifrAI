@@ -1,6 +1,7 @@
 import { CHORD_CATALOG } from '@cifrai/shared';
 import { useState } from 'react';
 import { ChordDiagram } from '../../components/ChordDiagram';
+import { Card } from '../../components/ui/Card';
 
 // Página só de desenvolvimento (rota registrada apenas com import.meta.env.DEV): textos fora do catálogo i18n de propósito.
 export default function ChordGalleryPage() {
@@ -9,7 +10,7 @@ export default function ChordGalleryPage() {
 
   return (
     <section aria-labelledby="gallery-title" className="flex flex-col gap-4">
-      <h1 id="gallery-title" className="text-2xl font-bold">
+      <h1 id="gallery-title" className="font-display text-2xl font-extrabold">
         Galeria de acordes (dev)
       </h1>
       <div className="flex flex-wrap gap-4">
@@ -34,13 +35,15 @@ export default function ChordGalleryPage() {
       </div>
       <ul className="grid list-none grid-cols-2 gap-3 p-0 md:grid-cols-3 lg:grid-cols-5">
         {CHORD_CATALOG.map((chord) => (
-          <li key={chord.id} className="rounded-card border border-border bg-surface p-2">
-            <ChordDiagram
-              chord={chord}
-              leftHanded={leftHanded}
-              showFingers={showFingers}
-              playable
-            />
+          <li key={chord.id}>
+            <Card variant="raised" className="p-2">
+              <ChordDiagram
+                chord={chord}
+                leftHanded={leftHanded}
+                showFingers={showFingers}
+                playable
+              />
+            </Card>
           </li>
         ))}
       </ul>

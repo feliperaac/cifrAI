@@ -32,6 +32,15 @@ export const messages = {
   'chord.play.unsupported': 'Seu navegador não toca áudio.',
   'chord.play.suspended': 'O áudio está bloqueado. Toque de novo.',
   'chord.play.failed': 'Não foi possível tocar o som.',
+  'ui.loading': 'Carregando…',
+  'ui.retry': 'Tentar de novo',
+  'ui.selected': 'Selecionado',
+  'ui.complete': 'Concluído',
+  'ui.xp': 'XP',
+  'ui.xpTotal': '{n} XP',
+  'ui.xpGained': 'Você ganhou {n} XP',
+  'ui.empty': 'Nada por aqui ainda.',
+  'ui.error': 'Algo deu errado.',
   'chord.unknown': 'Acorde não encontrado.',
 } as const;
 

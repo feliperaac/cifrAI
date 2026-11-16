@@ -7,10 +7,18 @@
 name: CI
 
 on:
+  # paths-ignore: commits so de documentacao nao rodam o CI nem publicam imagem nova no GHCR.
+  # `.github/**` NAO esta na lista: mudar o workflow sempre roda o CI.
   push:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
   workflow_dispatch:
   # Sem `schedule`: nao ha tarefa periodica util hoje (o Dependabot cobre dependencias).
   # Se um dia houver, lembre que o cron do Actions e em UTC: 06:00 America/Rio_Branco (UTC-5) = '0 11 * * *'.

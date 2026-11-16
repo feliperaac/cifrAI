@@ -1,4 +1,4 @@
-import { CHORD_CATALOG, getChord, type ChordShape } from '@cifrai/shared';
+import { CHORD_CATALOG, chordDisplayName, getChord, type ChordShape } from '@cifrai/shared';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { ChordDiagram, describeChord } from './ChordDiagram';
@@ -133,9 +133,9 @@ describe('ChordDiagram', () => {
     const img = screen.getByRole('img');
     expect(img).toHaveAttribute(
       'aria-label',
-      'Acorde Am, Lá menor: corda 6 muda, corda 5 solta, corda 4 casa 2 dedo 2, corda 3 casa 2 dedo 3, corda 2 casa 1 dedo 1, corda 1 solta',
+      'Acorde Am (Lá menor): corda 6 muda, corda 5 solta, corda 4 casa 2 dedo 2, corda 3 casa 2 dedo 3, corda 2 casa 1 dedo 1, corda 1 solta',
     );
-    expect(img.querySelector('title')?.textContent).toBe('Acorde Am, Lá menor');
+    expect(img.querySelector('title')?.textContent).toBe('Acorde Am (Lá menor)');
     expect(img.querySelector('desc')?.textContent).toBe(img.getAttribute('aria-label'));
   });
 
@@ -185,6 +185,77 @@ describe('ChordDiagram', () => {
   });
 });
 
+describe('ChordDiagram nome por extenso', () => {
+  it.each(CHORD_CATALOG.map((c) => [c.id]))('%s: legenda igual ao rótulo da função pura', (id) => {
+    render(<ChordDiagram chordId={id} />);
+    expect(screen.getByTestId('chord-caption').textContent).toBe(
+      chordDisplayName(chord(id)).rotulo,
+    );
+  });
+
+  it('legendas de exemplo: G (Sol), Am (Lá menor), D7 (Ré com sétima)', () => {
+    for (const [id, text] of [
+      ['g', 'G (Sol)'],
+      ['am', 'Am (Lá menor)'],
+      ['d7', 'D7 (Ré com sétima)'],
+    ] as const) {
+      const { unmount } = render(<ChordDiagram chordId={id} />);
+      expect(screen.getByTestId('chord-caption').textContent).toBe(text);
+      unmount();
+    }
+  });
+
+  it('showFullName=false oculta a legenda e não vaza o nome para o leitor de tela', () => {
+    render(<ChordDiagram chordId="am" showFullName={false} />);
+    expect(screen.queryByTestId('chord-caption')).toBeNull();
+    expect(screen.queryByText(/Lá menor/)).toBeNull();
+    const img = screen.getByRole('img');
+    expect(img.getAttribute('aria-label')).toMatch(/^Acorde Am: corda 6 muda/);
+    expect(img.querySelector('title')?.textContent).toBe('Acorde Am');
+  });
+
+  it('o nome aparece uma vez só: no topo do SVG só sem showFullName, e o viewBox encolhe', () => {
+    const { rerender } = render(<ChordDiagram chordId="g" />);
+    expect(screen.getByTestId('chord-diagram').querySelector(':scope > text')).toBeNull();
+    const heightWith = screen.getByTestId('chord-diagram').getAttribute('viewBox');
+    rerender(<ChordDiagram chordId="g" showFullName={false} />);
+    const svg = screen.getByTestId('chord-diagram');
+    expect(svg.querySelector(':scope > text')?.textContent).toBe('G');
+    expect(svg.getAttribute('viewBox')).not.toBe(heightWith);
+    expect(heightWith).toBe('0 0 140 124');
+    expect(svg.getAttribute('viewBox')).toBe('0 0 140 148');
+  });
+
+  it('leitor de tela ouve o nome uma vez só (legenda é aria-hidden)', () => {
+    render(<ChordDiagram chordId="g" />);
+    expect(screen.getByTestId('chord-caption')).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.getAllByText(/Sol/, { ignore: 'title, desc' })).toHaveLength(1);
+    expect(screen.getByRole('img')).toHaveAccessibleName(/^Acorde G \(Sol\): corda 6 casa 3/);
+  });
+
+  it('canhoto não altera o texto da legenda nem o nome acessível', () => {
+    const read = (leftHanded: boolean) => {
+      const { unmount } = render(<ChordDiagram chordId="d7" leftHanded={leftHanded} />);
+      const out = [
+        screen.getByTestId('chord-caption').textContent,
+        screen.getByRole('img').getAttribute('aria-label'),
+      ];
+      unmount();
+      return out;
+    };
+    expect(read(true)).toEqual(read(false));
+  });
+
+  it('playable: legenda visível e botão com nome por extenso; sem showFullName só a cifra', () => {
+    const { rerender } = render(<ChordDiagram chordId="d7" playable />);
+    expect(screen.getByTestId('chord-caption').textContent).toBe('D7 (Ré com sétima)');
+    expect(screen.getByRole('button', { name: 'Tocar acorde D7 (Ré com sétima)' })).toBeVisible();
+    rerender(<ChordDiagram chordId="d7" playable showFullName={false} />);
+    expect(screen.queryByTestId('chord-caption')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Tocar acorde D7' })).toBeInTheDocument();
+  });
+});
+
 describe('ChordDiagram playable', () => {
   it('por padrão não é botão', () => {
     render(<ChordDiagram chord={chord('am')} />);
@@ -195,7 +266,7 @@ describe('ChordDiagram playable', () => {
     const { default: userEvent } = await import('@testing-library/user-event');
     vi.stubGlobal('AudioContext', undefined);
     render(<ChordDiagram chord={chord('am')} playable />);
-    const button = screen.getByRole('button', { name: 'Tocar acorde Am' });
+    const button = screen.getByRole('button', { name: 'Tocar acorde Am (Lá menor)' });
     expect(button).toHaveAttribute('type', 'button');
     await userEvent.setup().click(button);
     expect(await screen.findByRole('alert')).toHaveTextContent('Seu navegador não toca áudio.');
@@ -207,7 +278,7 @@ describe('ChordDiagram playable', () => {
     vi.stubGlobal('AudioContext', undefined);
     const user = userEvent.setup();
     render(<ChordDiagram chord={chord('em')} playable leftHanded />);
-    const button = screen.getByRole('button', { name: 'Tocar acorde Em' });
+    const button = screen.getByRole('button', { name: 'Tocar acorde Em (Mi menor)' });
     button.focus();
     await user.keyboard('{Enter}');
     expect(await screen.findByRole('alert')).toBeInTheDocument();

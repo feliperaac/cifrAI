@@ -19,7 +19,6 @@ export const messages = {
   'notFound.description': 'Esse endereço não existe. Vamos voltar para a trilha?',
   'notFound.back': 'Voltar para a trilha',
   'chord.label': 'Acorde {name}',
-  'chord.labelNamed': 'Acorde {name}, {namePt}',
   'chord.stringMuted': 'corda {string} muda',
   'chord.stringOpen': 'corda {string} solta',
   'chord.stringFret': 'corda {string} casa {fret}',

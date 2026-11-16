@@ -5,7 +5,7 @@
 
 **Última atualização:** 2026-11-15
 **Fase atual:** F1 — Núcleo do produto (F0 concluída)
-**Próxima tarefa:** F1-02 (ChordDiagram)
+**Próxima tarefa:** F1-16 (identidade visual), depois F1-04 e F1-09. Aguardam verificação do usuário: F1-02 e F1-14 (visual) e F1-13 (som)
 **Ambiente:** VM dev (Oracle 19c local) · VM prod: ainda não provisionada
 
 ## Regras de uso
@@ -32,6 +32,7 @@
 - [x] F1-01 `pedagogy-content` Schema Zod de lição/exercício em `packages/content` + validador (`content:validate`). ADR-0002: o catálogo deve expor XP por lição, número de exercícios e estado "aposentado" (VL-0017)
 - [~] F1-02 `frontend-ui` Componente `ChordDiagram` (SVG, suporte a canhoto, pestana, X/O)
 - [ ] F1-03 `frontend-ui` Componente `Fretboard` interativo (tocar casas para montar acorde)
+- [ ] F1-16 `frontend-ui` Identidade visual e design system: paleta própria em CSS vars (claro/escuro, contraste forte), tipografia marcante, escala de espaçamento/raio/sombra, UMA abertura de página coreografada, primeiros blocos reutilizáveis (botão, card, barra de progresso, selo de XP). Diretriz do usuário em 2026-11-15 (.claude/agents/frontend-ui.md, "Direção visual"). Precede F1-04 e F1-09; começa depois da F1-14
 - [ ] F1-04 `frontend-ui` Player de lição: máquina de estados, feedback, barra de progresso, tela de resultado (XP)
 - [ ] F1-05 `frontend-ui` Tipos de exercício: múltipla escolha, associar pares, ordenar, montar acorde, "praticou no violão?" (auto-avaliação)
 - [ ] F1-06 `backend-api` Auth (e-mail + senha com argon2, sessão por cookie httpOnly) e modo convidado
@@ -41,6 +42,8 @@
 - [ ] F1-10 `backend-api` Revisão espaçada (SM-2 simplificado) para cifras e acordes
 - [ ] F1-11 `frontend-ui` Offline-first: progresso em IndexedDB e sync ao reconectar
 - [~] F1-13 `audio-dsp` Tocar o acorde ao clicar no `ChordDiagram` (síntese de corda dedilhada, strum 6ª→1ª, notas calculadas das casas e da afinação E A D G B E). Pedido do usuário em 2026-11-15; "idêntico ao violão" não é garantível por síntese: ver relatório e decidir por amostras (CC0) depois
+- [~] F1-14 `frontend-ui` Nome por extenso abaixo do acorde no `ChordDiagram` (ex.: "G (Sol)", "Am (Lá menor)"). Sugestão do usuário em 2026-11-15 (VL-0020, aguarda verificação visual do usuário)
+- [ ] F1-15 `pedagogy-content` + `frontend-ui` Exercícios de identificar acorde: mostrar a cifra e perguntar o nome (e o inverso, diagrama → nome), cifra ↔ nome (Sol, Lá…). Estende o schema (mídia de acorde em `multiple_choice`); alinhar com F1-05 e F2-03. Sugestão do usuário em 2026-11-15
 - [ ] F1-12 `qa-validator` E2E Playwright (viewport mobile) do fluxo: abrir → lição → XP → streak
 
 ## F2 — Conteúdo do curso 1 (violão básico)
@@ -90,4 +93,10 @@
 _Nenhum._
 
 ## Notas de sessão
-_(Anote aqui contexto que a próxima sessão precisa saber.)_
+- **Ambiente:** stack dev no ar (`HTTP_PORT=8088 HTTPS_PORT=8443 docker compose -f compose.yaml -f compose.dev.yaml up -d`); web em `http://192.168.20.234:5173`, galeria em `/dev/acordes`. Portas 80/443 e os containers `arasuper-app` e `proxy-nginx` são do usuário: não tocar. Node local 20 (projeto exige 24: CI e Docker usam 24). pnpm em `~/.local/bin`.
+- **Segredos:** `.env` e `.mcp.json` são do usuário e ficam fora do git; nunca ler nem imprimir valores. Testar o CI sempre com o `.env.example`.
+- **Repositório:** `git@github.com:feliperaac/cifrAI.git` (público), branch `main`. Todo push de código dispara o CI e publica imagens no GHCR; commits só de `*.md` e `docs/**` não disparam.
+- **Em andamento:** nada; F1-14 commitada, aguarda olhar do usuário (VL-0020). Próximo VL: 0021.
+- **Aguardam o usuário:** F1-02 (olhar a galeria em 360×640, temas claro/escuro, destro/canhoto), F1-13 (ouvir a v2 do som; parâmetros em `apps/web/src/audio/karplusStrong.ts`; plano B: amostras CC0 com licença verificada; o site Musicca foi DESCARTADO), decisões de F1-01 (teto de XP 100, categorias de lição, XP por exercício, mínimo de exercícios).
+- **Próximas:** F1-16 (identidade visual, precede F1-04 e F1-09), F1-15 (quizzes de identificar acorde), depois F1-03, F1-04, F1-05.
+- **Memórias do projeto** em `~/.claude/projects/-home-felipe-projetos-pessoal-cifrai/memory/` (fuso Rio Branco, CI, stack no ar, referência Duolingo, direção de design).

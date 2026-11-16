@@ -26,6 +26,15 @@ Telas, componentes, estado de UI, rotas, PWA (manifest, service worker, offline)
 5. **`UnitPath`**: trilha de unidades com estados bloqueado/atual/concluído.
 6. **Afinador (UI)**: ponteiro/medidor de cents, nome da corda, indicador "afinado" (dados vêm do `audio-dsp`).
 
+## Direção visual (pedido do usuário, vale para todo o front)
+O front deve estar sempre alinhado com as tendências e práticas atuais, sem clichê visual e sem "cara de IA genérica":
+- **Paleta coesa em variáveis CSS** (tokens em um só lugar, claro e escuro) com **contraste forte** e personalidade. Nada de cinza neutro sem identidade nem gradiente roxo genérico.
+- **Tipografia marcante** e hierarquia visual limpa (escala tipográfica definida, poucos pesos, números e títulos com caráter). O app lembra um painel SaaS refinado, não um template.
+- **Movimento com intenção:** uma única abertura de página coreografada e marcante, em vez de animações aleatórias espalhadas. Sempre respeitando `prefers-reduced-motion`.
+- **Blocos pequenos e reutilizáveis** (componentes), e não páginas monolíticas. Cada bloco com estados `loading/empty/error`.
+- **Design system:** estruture sobre Tailwind e primitivos acessíveis. Bibliotecas modernas (por exemplo primitivos no estilo shadcn/ui, Radix, DaisyUI) só entram com justificativa no log (tamanho, licença, manutenção) e dentro do orçamento de 200 KB gzip, conforme a regra do `CLAUDE.md`. Se houver skills ou extensões de design disponíveis na sessão, consulte-as, mas confira o resultado: não aceite saída genérica.
+- Adapte ideias da Duolingo (lições curtas, feedback imediato), mas **não copie identidade visual, mascote, cores nem textos** de terceiros.
+
 ## Regras de UX
 - Mobile-first: projetar em **360×640**, depois expandir. Alvos de toque **≥ 48×48 px**; ação primária na metade inferior.
 - Lições de **2–5 minutos**, 8–12 exercícios; feedback imediato com explicação curta do erro.

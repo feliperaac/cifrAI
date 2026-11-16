@@ -307,3 +307,16 @@
 - **Feedback do usuário:** v1 "ficou bom, mas o som está saindo muito metalizado". A v2 (excitação suavizada, laço com mais amortecimento, ressonâncias de corpo em 100/200/450 Hz, passa-baixa de 4 kHz) está no ar e ainda NÃO foi ouvida pelo usuário.
 - **NÃO VERIFICADO:** o som real da v2 (ninguém além do usuário consegue ouvir); latência; WebView Android e iOS/Safari (chave silenciosa pode mudar o Web Audio); CPU em celular fraco (~45 ms por nota em PC no primeiro clique, depois cache); aparência do botão em 360×640 e leitor de tela
 - **Decisões/pendências:** o usuário ouve a v2 em `http://192.168.20.234:5173/dev/acordes` e diz se serve; ajuste fino em `apps/web/src/audio/karplusStrong.ts` (parâmetros documentados); se em ~2 rodadas o timbre não convencer, migrar para amostras CC0 com licença verificada (a `AudioEngine` já permite; `session.ts` escolhe a implementação); o site Musicca foi considerado e DESCARTADO pelo usuário (termos proíbem cópia sem autorização escrita); latência medida só na F4-03 em aparelho Android
+
+---
+
+## VL-0020 — F1-14 Nome por extenso no ChordDiagram (PARCIAL: sem verificação visual)
+- **Data:** 2026-11-15 (fuso de referência: America/Rio_Branco)
+- **Tarefa:** F1-14
+- **Agente:** frontend-ui (reverificado pelo agente principal)
+- **Ambiente:** Node local 20.20.2; imagens Docker em Node 24; stack dev no ar (hot reload)
+- **Escopo validado:** `chordDisplayName` em `packages/shared` (`root`/`quality` opcionais no `ChordShape`, preenchidos nos 10 acordes do catálogo); legenda abaixo do `ChordDiagram` (prop `showFullName`, padrão true); nome removido do topo do SVG quando a legenda aparece (feedback do usuário: nome duplicado), `viewBox` 24 unidades menor; aria sem repetição e sem vazar o nome com `showFullName=false`
+- **Comando executado (agente principal, sobre o código final):** `pnpm validate` → format, lint, typecheck, test, content:validate, web build, docker dev e prod, todos OK. O agente havia rodado antes os mesmos gates, com testes shared 29, api 14, content 32, web 75; JS inicial 85,29 kB gzip.
+- **Resultado:** ✅ rótulos conferidos por teste para os 10 acordes (ex.: "G (Sol)", "Am (Lá menor)", "D7 (Ré com sétima)")
+- **NÃO VERIFICADO:** aparência em 360×640, temas claro/escuro, contraste da legenda, leitor de tela real, espaço no topo após remover o nome
+- **Decisões/pendências:** o usuário confere `http://192.168.20.234:5173/dev/acordes`; na F1-15, se a cifra for a resposta, o componente precisa de opção para escondê-la; `namePt` e `root`/`quality` coexistem (teste garante consistência)

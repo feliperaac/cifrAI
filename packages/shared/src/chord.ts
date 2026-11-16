@@ -9,6 +9,12 @@ export const MAX_FRET = 12;
 export const MAX_FRET_SPAN = 5;
 export const STRING_COUNT = 6;
 
+export const CHORD_ROOT_PATTERN = /^[A-G][#b]?$/;
+export const CHORD_QUALITIES = ['major', 'minor', 'dominant7'] as const;
+export type ChordQuality = (typeof CHORD_QUALITIES)[number];
+/** Nota fundamental em cifra (ex.: G, F#, Bb). */
+export type ChordRoot = string;
+
 const nameText = (max: number) =>
   z
     .string()
@@ -39,6 +45,12 @@ export const ChordShapeSchema = z
     name: nameText(12),
     /** Nome por extenso em pt-BR (ex.: Lá menor). */
     namePt: nameText(40).optional(),
+    /** Nota fundamental (ex.: G). Com `quality`, gera o nome de exibição (`chordDisplayName`). */
+    root: z
+      .string()
+      .regex(CHORD_ROOT_PATTERN, { message: 'Nota inválida (ex.: G, F#, Bb).' })
+      .optional(),
+    quality: z.enum(CHORD_QUALITIES).optional(),
     /** Ordem: 6ª corda (mais grave) até a 1ª (mais aguda). Casas absolutas no braço. */
     frets: six(FretSchema),
     fingers: six(FingerSchema),
@@ -50,6 +62,9 @@ export const ChordShapeSchema = z
     const fail = (path: (string | number)[], message: string) =>
       ctx.addIssue({ code: 'custom', path, message });
     const { frets, fingers, barre, baseFret } = chord;
+    if ((chord.root === undefined) !== (chord.quality === undefined)) {
+      fail(['quality'], 'root e quality devem vir juntos.');
+    }
     const stringAt = (index: number) => STRING_COUNT - index;
 
     const pressed = frets.filter((fret) => fret >= 1);

@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { AppLayout } from '../components/AppLayout';
+import LessonPage from '../pages/LessonPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import PathPage from '../pages/PathPage';
 import ProfilePage from '../pages/ProfilePage';
@@ -14,6 +15,7 @@ const ChordGalleryPage = import.meta.env.DEV
 export function App() {
   return (
     <Routes>
+      <Route path="licao/:lessonId" element={<LessonPage />} />
       <Route element={<AppLayout />}>
         <Route index element={<PathPage />} />
         <Route path="afinador" element={<TunerPage />} />

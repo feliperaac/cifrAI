@@ -32,11 +32,18 @@ describe('rotas', () => {
   });
 });
 
+// A rota é lazy: sob carga (validate roda tudo em paralelo) 1 s não basta.
+const LAZY_ROUTE_TIMEOUT_MS = 5000;
+
 describe('galeria de acordes (dev)', () => {
   it('existe em /dev/acordes (import.meta.env.DEV) e não está na navegação', async () => {
     renderAt('/dev/acordes');
     expect(
-      await screen.findByRole('heading', { level: 1, name: /Galeria de acordes/ }),
+      await screen.findByRole(
+        'heading',
+        { level: 1, name: /Galeria de acordes/ },
+        { timeout: LAZY_ROUTE_TIMEOUT_MS },
+      ),
     ).toBeInTheDocument();
     expect(screen.getAllByTestId('chord-diagram')).toHaveLength(10);
     const nav = screen.getByRole('navigation', { name: t('nav.label') });
@@ -46,7 +53,7 @@ describe('galeria de acordes (dev)', () => {
   it('alternadores canhoto e dedos atuam nos diagramas', async () => {
     const user = userEvent.setup();
     renderAt('/dev/acordes');
-    await screen.findAllByTestId('chord-diagram');
+    await screen.findAllByTestId('chord-diagram', {}, { timeout: LAZY_ROUTE_TIMEOUT_MS });
     expect(screen.getAllByTestId('chord-diagram')[0]).toHaveAttribute('data-left-handed', 'false');
     await user.click(screen.getByRole('checkbox', { name: 'Canhoto' }));
     expect(screen.getAllByTestId('chord-diagram')[0]).toHaveAttribute('data-left-handed', 'true');

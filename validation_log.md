@@ -344,3 +344,17 @@
 ### VL-0021 — adendo (2026-11-15)
 - **Verificação visual do usuário:** "tudo certo" sobre abertura, fontes, blocos e diagrama na identidade A.
 - **Ícones PWA regerados** com `pnpm --filter @cifrai/web icons` (fundo cobre `#a8330f`, traço creme `#fbf5ea`; `favicon.svg` igual). Conferi o `icon-512.png` visualmente: cores corretas; arte (6 cordas e uma casa) é a original. `format:check` e build web OK.
+
+---
+
+## VL-0022 — F1-04 Player de lição (PARCIAL: sem verificação visual)
+- **Data:** 2026-11-15 (fuso de referência: America/Rio_Branco)
+- **Tarefa:** F1-04
+- **Agente:** frontend-ui (reverificado pelo agente principal)
+- **Ambiente:** Node local 20.20.2; imagens Docker em Node 24; stack dev no ar (hot reload)
+- **Escopo validado:** máquina de estados pura `apps/web/src/lesson/lessonMachine.ts` (intro → exercício → feedback → próximo → resultado, eventos inválidos ignorados); `LessonPlayer`, telas de intro/resultado, diálogo de saída, `MultipleChoiceView` (radios nativos) e ponto de extensão `resolveExerciseKit` para a F1-05; rota `/licao/:lessonId` com lição fixture só em DEV; `@cifrai/content` como devDependency de workspace (só tipos)
+- **Comandos executados (agente principal):** `pnpm validate` completo OK (format, lint, typecheck, test, content:validate, web build, docker dev e prod). Testes: shared 29, content 32, api 14, web 110. JS inicial ≈89 kB gzip; `grep` de "u99.l01" em `dist/assets/*.js` sem ocorrência (fixture fora do bundle de produção).
+- **Ocorrência:** a primeira execução do validate falhou em 2 testes da galeria de acordes (`findBy` de 1 s numa rota lazy sob carga paralela). Rodados 3 vezes isolados passavam. Corrigido com timeout de 5 s em `App.test.tsx`; validate seguinte passou. Também corrigi lint e formatação do `gerar.mjs` da proposta de logo (variável sem uso).
+- **Erro não pune (D2):** sem vidas; XP = `lesson.xp` ao chegar no resultado, independente de acertos
+- **NÃO VERIFICADO:** aparência e fluxo no navegador em 360×640, contraste do fundo de feedback (`color-mix`), foco ao ir para o resultado (fica no botão), teclado/leitor de tela reais, Lighthouse
+- **Decisões/pendências:** XP por exercício, XP reduzido em repetição e teto diário (ADR-0002) seguem sem regra (decisão do usuário da F1-01); nada é salvo ainda (F1-07/F1-11); não há fonte real de lições no front (`defaultLessonLoader` é o ponto a trocar); tipos além de `multiple_choice` caem em "ainda não disponível" + "Pular exercício" até a F1-05

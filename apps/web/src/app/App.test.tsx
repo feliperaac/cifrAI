@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 import { t } from '../i18n';
@@ -28,5 +29,28 @@ describe('rotas', () => {
     expect(screen.getByRole('main')).toBeInTheDocument();
     const nav = screen.getByRole('navigation', { name: t('nav.label') });
     expect(nav.querySelectorAll('a')).toHaveLength(3);
+  });
+});
+
+describe('galeria de acordes (dev)', () => {
+  it('existe em /dev/acordes (import.meta.env.DEV) e não está na navegação', async () => {
+    renderAt('/dev/acordes');
+    expect(
+      await screen.findByRole('heading', { level: 1, name: /Galeria de acordes/ }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByTestId('chord-diagram')).toHaveLength(10);
+    const nav = screen.getByRole('navigation', { name: t('nav.label') });
+    expect(nav.querySelectorAll('a')).toHaveLength(3);
+  });
+
+  it('alternadores canhoto e dedos atuam nos diagramas', async () => {
+    const user = userEvent.setup();
+    renderAt('/dev/acordes');
+    await screen.findAllByTestId('chord-diagram');
+    expect(screen.getAllByTestId('chord-diagram')[0]).toHaveAttribute('data-left-handed', 'false');
+    await user.click(screen.getByRole('checkbox', { name: 'Canhoto' }));
+    expect(screen.getAllByTestId('chord-diagram')[0]).toHaveAttribute('data-left-handed', 'true');
+    await user.click(screen.getByRole('checkbox', { name: 'Mostrar dedos' }));
+    expect(document.querySelectorAll('[data-kind="finger"] text')).toHaveLength(0);
   });
 });

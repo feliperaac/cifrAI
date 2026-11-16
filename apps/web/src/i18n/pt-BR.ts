@@ -18,6 +18,16 @@ export const messages = {
   'notFound.title': 'Página não encontrada',
   'notFound.description': 'Esse endereço não existe. Vamos voltar para a trilha?',
   'notFound.back': 'Voltar para a trilha',
+  'chord.label': 'Acorde {name}',
+  'chord.labelNamed': 'Acorde {name}, {namePt}',
+  'chord.stringMuted': 'corda {string} muda',
+  'chord.stringOpen': 'corda {string} solta',
+  'chord.stringFret': 'corda {string} casa {fret}',
+  'chord.stringFretFinger': 'corda {string} casa {fret} dedo {finger}',
+  'chord.barre': 'pestana na casa {fret} com o dedo {finger}, das cordas {from} a {to}',
+  'chord.baseFret': 'diagrama começa na casa {fret}',
+  'chord.fretLabel': '{fret}ª',
+  'chord.unknown': 'Acorde não encontrado.',
 } as const;
 
 export type MessageKey = keyof typeof messages;

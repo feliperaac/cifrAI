@@ -21,8 +21,8 @@ const chunk = (type, data) => {
   return Buffer.concat([len, body, sum]);
 };
 
-const BG = [15, 118, 110];
-const FG = [255, 255, 255];
+const BG = [168, 51, 15];
+const FG = [251, 245, 234];
 
 // safe: fracao do lado ocupada pelo desenho (maskable precisa de margem maior).
 function render(size, { safe, rounded }) {

@@ -340,3 +340,7 @@
 - **Resultado:** ✅ JS inicial ≈87 kB gzip (orçamento 200 KB), CSS 4,96 kB gzip, precache 18 entradas/368 KiB com woff2
 - **NÃO VERIFICADO:** aparência real (abertura, fontes carregando, hover/pressed), contraste dos estados hover (`filter: brightness`), Android, Lighthouse/LCP, teclado e leitor de tela, service worker em runtime
 - **Decisões/pendências:** o usuário aprovou a direção A por "pode continuar" à recomendação (trocar para B é nova rodada); ícones PWA ainda na cor teal antiga (regerar); `BottomNav` e `ThemeSwitcher` só herdam os tokens; o usuário precisa olhar `http://192.168.20.234:5173/` e `/dev/acordes` nos dois temas, em 360×640
+
+### VL-0021 — adendo (2026-11-15)
+- **Verificação visual do usuário:** "tudo certo" sobre abertura, fontes, blocos e diagrama na identidade A.
+- **Ícones PWA regerados** com `pnpm --filter @cifrai/web icons` (fundo cobre `#a8330f`, traço creme `#fbf5ea`; `favicon.svg` igual). Conferi o `icon-512.png` visualmente: cores corretas; arte (6 cordas e uma casa) é a original. `format:check` e build web OK.

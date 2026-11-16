@@ -26,7 +26,7 @@ export interface ChordDiagramProps {
   /** Largura em px. Sem valor, preenche o container (mínimo 140px). */
   size?: number;
   showFingers?: boolean;
-  /** Mostra o nome por extenso abaixo do desenho (ex.: "Am (Lá menor)"). Padrão: true. */
+  /** Mostra o nome por extenso acima do desenho (ex.: "Am (Lá menor)"). Padrão: true. */
   showFullName?: boolean;
   /** Substitui o título acessível (por padrão "Acorde Am (Lá menor)"). */
   title?: string;
@@ -104,6 +104,7 @@ function PlayableChord(props: Omit<ChordSvgProps, 'decorative'>) {
 
   return (
     <div className="flex flex-col items-stretch gap-1">
+      {showFullName && <ChordCaption shape={shape} />}
       <button
         type="button"
         className="chord-play min-h-tap min-w-tap cursor-pointer rounded-card bg-transparent p-0 text-inherit"
@@ -119,7 +120,6 @@ function PlayableChord(props: Omit<ChordSvgProps, 'decorative'>) {
       >
         <ChordSvg {...props} decorative />
       </button>
-      {showFullName && <ChordCaption shape={shape} />}
       <span id={descId} className="sr-only">
         {`${name}: ${describeChord(shape, showFingers)}`}
       </span>
@@ -175,8 +175,8 @@ export function ChordDiagram({
   if (playable) return <PlayableChord {...props} />;
   return (
     <div className="flex flex-col items-stretch gap-1">
-      <ChordSvg {...props} />
       {showFullName && <ChordCaption shape={shape} />}
+      <ChordSvg {...props} />
     </div>
   );
 }

@@ -320,3 +320,7 @@
 - **Resultado:** ✅ rótulos conferidos por teste para os 10 acordes (ex.: "G (Sol)", "Am (Lá menor)", "D7 (Ré com sétima)")
 - **NÃO VERIFICADO:** aparência em 360×640, temas claro/escuro, contraste da legenda, leitor de tela real, espaço no topo após remover o nome
 - **Decisões/pendências:** o usuário confere `http://192.168.20.234:5173/dev/acordes`; na F1-15, se a cifra for a resposta, o componente precisa de opção para escondê-la; `namePt` e `root`/`quality` coexistem (teste garante consistência)
+
+### VL-0020 — adendo (2026-11-15)
+- **Ajuste a pedido do usuário:** legenda movida para ACIMA do diagrama (nome em cima, acorde embaixo), nos modos tocável e estático. Gates após o ajuste: `format:check`, `lint`, `typecheck` OK; testes web 75 OK.
+- **Verificação visual do usuário:** ao ver a galeria com o ajuste, respondeu "ficou melhor!". Não detalhou 360×640, temas nem contraste, que seguem sem checagem própria.

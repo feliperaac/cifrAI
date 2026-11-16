@@ -5,7 +5,7 @@
 
 **Última atualização:** 2026-11-15
 **Fase atual:** F1 — Núcleo do produto (F0 concluída)
-**Próxima tarefa:** F1-16 (identidade visual), depois F1-04 e F1-09. Aguardam verificação do usuário: F1-02 e F1-14 (visual) e F1-13 (som)
+**Próxima tarefa:** F1-16 (identidade visual), depois F1-04 e F1-09. Aguardam verificação do usuário: F1-02 (visual) e F1-13 (som)
 **Ambiente:** VM dev (Oracle 19c local) · VM prod: ainda não provisionada
 
 ## Regras de uso
@@ -42,7 +42,7 @@
 - [ ] F1-10 `backend-api` Revisão espaçada (SM-2 simplificado) para cifras e acordes
 - [ ] F1-11 `frontend-ui` Offline-first: progresso em IndexedDB e sync ao reconectar
 - [~] F1-13 `audio-dsp` Tocar o acorde ao clicar no `ChordDiagram` (síntese de corda dedilhada, strum 6ª→1ª, notas calculadas das casas e da afinação E A D G B E). Pedido do usuário em 2026-11-15; "idêntico ao violão" não é garantível por síntese: ver relatório e decidir por amostras (CC0) depois
-- [~] F1-14 `frontend-ui` Nome por extenso abaixo do acorde no `ChordDiagram` (ex.: "G (Sol)", "Am (Lá menor)"). Sugestão do usuário em 2026-11-15 (VL-0020, aguarda verificação visual do usuário)
+- [x] F1-14 `frontend-ui` Nome por extenso abaixo do acorde no `ChordDiagram` (ex.: "G (Sol)", "Am (Lá menor)"). Sugestão do usuário em 2026-11-15 (VL-0020; nome acima do diagrama, aprovado pelo usuário)
 - [ ] F1-15 `pedagogy-content` + `frontend-ui` Exercícios de identificar acorde: mostrar a cifra e perguntar o nome (e o inverso, diagrama → nome), cifra ↔ nome (Sol, Lá…). Estende o schema (mídia de acorde em `multiple_choice`); alinhar com F1-05 e F2-03. Sugestão do usuário em 2026-11-15
 - [ ] F1-12 `qa-validator` E2E Playwright (viewport mobile) do fluxo: abrir → lição → XP → streak
 
@@ -96,7 +96,7 @@ _Nenhum._
 - **Ambiente:** stack dev no ar (`HTTP_PORT=8088 HTTPS_PORT=8443 docker compose -f compose.yaml -f compose.dev.yaml up -d`); web em `http://192.168.20.234:5173`, galeria em `/dev/acordes`. Portas 80/443 e os containers `arasuper-app` e `proxy-nginx` são do usuário: não tocar. Node local 20 (projeto exige 24: CI e Docker usam 24). pnpm em `~/.local/bin`.
 - **Segredos:** `.env` e `.mcp.json` são do usuário e ficam fora do git; nunca ler nem imprimir valores. Testar o CI sempre com o `.env.example`.
 - **Repositório:** `git@github.com:feliperaac/cifrAI.git` (público), branch `main`. Todo push de código dispara o CI e publica imagens no GHCR; commits só de `*.md` e `docs/**` não disparam.
-- **Em andamento:** nada; F1-14 commitada, aguarda olhar do usuário (VL-0020). Próximo VL: 0021.
+- **Em andamento:** nada; F1-14 concluída (VL-0020). Próximo VL: 0021.
 - **Aguardam o usuário:** F1-02 (olhar a galeria em 360×640, temas claro/escuro, destro/canhoto), F1-13 (ouvir a v2 do som; parâmetros em `apps/web/src/audio/karplusStrong.ts`; plano B: amostras CC0 com licença verificada; o site Musicca foi DESCARTADO), decisões de F1-01 (teto de XP 100, categorias de lição, XP por exercício, mínimo de exercícios).
 - **Próximas:** F1-16 (identidade visual, precede F1-04 e F1-09), F1-15 (quizzes de identificar acorde), depois F1-03, F1-04, F1-05.
 - **Memórias do projeto** em `~/.claude/projects/-home-felipe-projetos-pessoal-cifrai/memory/` (fuso Rio Branco, CI, stack no ar, referência Duolingo, direção de design).

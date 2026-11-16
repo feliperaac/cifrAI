@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { hasChord } from '@cifrai/shared';
 import { SCHEMA_VERSION, UnitSchema, type Course, type Unit } from './schema.js';
 
 export interface RawUnitFile {
@@ -87,6 +88,12 @@ function checkHierarchy(file: string, unit: Unit, issues: ContentIssue[]): void 
       add(`${lp}.safetyNotice`, 'O aviso deve mencionar pausa, dor ou desconforto.');
     }
     lesson.exercises.forEach((exercise, ei) => {
+      if (exercise.type === 'build_chord' && !hasChord(exercise.chordId)) {
+        add(
+          `${lp}.exercises[${ei}].chordId`,
+          `Acorde "${exercise.chordId}" não existe no catálogo de @cifrai/shared.`,
+        );
+      }
       if (!exercise.id.startsWith(`${lesson.id}.`)) {
         add(
           `${lp}.exercises[${ei}].id`,

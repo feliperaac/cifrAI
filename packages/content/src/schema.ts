@@ -1,3 +1,4 @@
+import { CHORD_ID_PATTERN } from '@cifrai/shared';
 import { z } from 'zod';
 
 export const SCHEMA_VERSION = 1;
@@ -10,7 +11,7 @@ export const ID_PATTERNS = {
   unit: /^u\d{2}$/,
   lesson: /^u\d{2}\.l\d{2}$/,
   exercise: /^u\d{2}\.l\d{2}\.e\d{2}$/,
-  chord: /^[a-z][a-z0-9-]*$/,
+  chord: CHORD_ID_PATTERN,
 } as const;
 
 const text = (max = 500) =>
@@ -80,7 +81,7 @@ export const OrderExerciseSchema = z.strictObject({
 export const BuildChordExerciseSchema = z.strictObject({
   ...exerciseBase,
   type: z.literal('build_chord'),
-  /** Referência; o diagrama (frets/fingers/barre) vem do catálogo de acordes (F1-02). */
+  /** Referência; o diagrama (frets/fingers/barre) vem do catálogo de `@cifrai/shared`; o validador exige que exista. */
   chordId: ChordIdSchema,
 });
 

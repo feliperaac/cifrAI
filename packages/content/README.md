@@ -22,7 +22,7 @@ Tipos de exercício (campo `type`; todos têm `id`, `prompt`, `explanation`, `hi
 - `multiple_choice`: `options` (`{id, text}`) e `correctOptionId`.
 - `match_pairs`: `pairs` (`{left, right}`).
 - `order`: `items` na ordem correta (a UI embaralha).
-- `build_chord`: `chordId` (ex.: `em`). O diagrama vem do catálogo de acordes, não daqui.
+- `build_chord`: `chordId` (ex.: `em`). O diagrama vem do catálogo de acordes em `@cifrai/shared` (`CHORD_CATALOG`), não daqui; o validador rejeita `chordId` que não esteja no catálogo.
 - `practice_timer`: `durationSeconds`. Auto-avaliação "Consegui / Preciso de mais prática".
 
 ## Como criar uma lição
@@ -38,6 +38,7 @@ Tipos de exercício (campo `type`; todos têm `id`, `prompt`, `explanation`, `hi
 - `schemaVersion` = 1; campos desconhecidos são rejeitados (`.strict()`).
 - Nenhum texto vazio ou só espaços.
 - XP inteiro de 1 a 100; `exerciseCount` igual ao número de exercícios (1 a 20).
+- `build_chord`: `chordId` existe no catálogo de acordes de `@cifrai/shared`.
 - Resposta correta pertence às opções; opções, pares e itens de ordenação sem repetição.
 - Pré-requisito existe e vem antes da lição.
 - Direitos autorais: `source.kind` é `public-domain`, `folk` ou `original`; `folk` e `public-domain` exigem `source.reference` (onde você verificou). Chaves de letra (`lyrics`, `letra`...) são rejeitadas. Nunca inclua letra protegida.

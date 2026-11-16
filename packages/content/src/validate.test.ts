@@ -189,6 +189,13 @@ describe('regras dos exercícios', () => {
       'ID inválido',
     );
   });
+  it('chordId bem formado, mas inexistente no catálogo', () => {
+    expectIssue(
+      edited('lessons.1.exercises.0.chordId', 'zz9'),
+      'lessons[1].exercises[0].chordId',
+      'não existe no catálogo',
+    );
+  });
   it('build_chord não aceita diagrama embutido (strict)', () => {
     const issues = run(edited('lessons.1.exercises.0.frets', [0, 2, 2, 0, 0, 0]));
     expect(issues.some((i) => i.path === 'lessons[1].exercises[0]')).toBe(true);

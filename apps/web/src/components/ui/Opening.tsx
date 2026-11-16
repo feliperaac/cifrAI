@@ -1,5 +1,4 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
-import { t } from '../../i18n';
 
 const FLAG = 'cifrai.opening.played';
 
@@ -24,31 +23,6 @@ export function useOpening(enabled: boolean): 'play' | 'off' {
     }
   }, [enabled]);
   return mode;
-}
-
-export function Wordmark() {
-  return (
-    <div className="flex items-center gap-3">
-      <svg viewBox="0 0 48 30" width="48" height="30" aria-hidden="true" focusable="false">
-        {[0, 1, 2, 3, 4, 5].map((i) => (
-          <line
-            key={i}
-            className="opening-string"
-            style={{ '--i': i } as CSSProperties}
-            x1="2"
-            x2="46"
-            y1={3 + i * 4.8}
-            y2={3 + i * 4.8}
-            pathLength="100"
-            strokeWidth={1 + i * 0.25}
-          />
-        ))}
-      </svg>
-      <span className="opening-word font-display text-2xl font-extrabold tracking-tight">
-        {t('app.name')}
-      </span>
-    </div>
-  );
 }
 
 export function OpeningItem({ index, children }: { index: number; children: ReactNode }) {

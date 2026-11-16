@@ -33,7 +33,7 @@
 - [x] F1-02 `frontend-ui` Componente `ChordDiagram` (SVG, suporte a canhoto, pestana, X/O) (VL-0018, verificado pelo usuário)
 - [ ] F1-03 `frontend-ui` Componente `Fretboard` interativo (tocar casas para montar acorde)
 - [x] F1-16 `frontend-ui` Identidade visual e design system: paleta própria em CSS vars (claro/escuro, contraste forte), tipografia marcante, escala de espaçamento/raio/sombra, UMA abertura de página coreografada, primeiros blocos reutilizáveis (botão, card, barra de progresso, selo de XP). Diretriz do usuário em 2026-11-15 (.claude/agents/frontend-ui.md, "Direção visual"). Precede F1-04 e F1-09; começa depois da F1-14 (VL-0021, aprovado pelo usuário, ícones PWA regerados)
-- [ ] F1-17 `frontend-ui` Logo exclusiva do CifrAI: violão com a cifra (nomes de acorde) dando volta nele; arte original em SVG, legível em 16 px, claro/escuro; depois regerar ícones PWA, favicon e Wordmark. Pedido do usuário em 2026-11-15
+- [~] F1-17 `frontend-ui` Logo exclusiva do CifrAI: violão com a cifra (nomes de acorde) dando volta nele; arte original em SVG, legível em 16 px, claro/escuro; depois regerar ícones PWA, favicon e Wordmark. Pedido do usuário em 2026-11-15 (VL-0023, logo C aplicada; aguarda verificação visual do usuário)
 - [~] F1-04 `frontend-ui` Player de lição: máquina de estados, feedback, barra de progresso, tela de resultado (XP) (VL-0022, aguarda verificação visual do usuário em /licao/u99.l01)
 - [ ] F1-05 `frontend-ui` Tipos de exercício: múltipla escolha, associar pares, ordenar, montar acorde, "praticou no violão?" (auto-avaliação)
 - [ ] F1-06 `backend-api` Auth (e-mail + senha com argon2, sessão por cookie httpOnly) e modo convidado
@@ -97,7 +97,7 @@ _Nenhum._
 - **Ambiente:** stack dev no ar (`HTTP_PORT=8088 HTTPS_PORT=8443 docker compose -f compose.yaml -f compose.dev.yaml up -d`); web em `http://192.168.20.234:5173`, galeria em `/dev/acordes`. Portas 80/443 e os containers `arasuper-app` e `proxy-nginx` são do usuário: não tocar. Node local 20 (projeto exige 24: CI e Docker usam 24). pnpm em `~/.local/bin`.
 - **Segredos:** `.env` e `.mcp.json` são do usuário e ficam fora do git; nunca ler nem imprimir valores. Testar o CI sempre com o `.env.example`.
 - **Repositório:** `git@github.com:feliperaac/cifrAI.git` (público), branch `main`. Todo push de código dispara o CI e publica imagens no GHCR; commits só de `*.md` e `docs/**` não disparam.
-- **Em andamento:** F1-04 (aguarda olhar do usuário) e F1-17 (fase 2: aplicar logo C). Próximo VL: 0023.
+- **Em andamento (aguardam o olhar do usuário):** F1-04 (/licao/u99.l01) e F1-17 (header, abertura, ícone). Próximo VL: 0024.
 - **Aguardam o usuário:** F1-02 (olhar a galeria em 360×640, temas claro/escuro, destro/canhoto), F1-13 (ouvir a v2 do som; parâmetros em `apps/web/src/audio/karplusStrong.ts`; plano B: amostras CC0 com licença verificada; o site Musicca foi DESCARTADO), decisões de F1-01 (teto de XP 100, categorias de lição, XP por exercício, mínimo de exercícios).
 - **Próximas:** F1-16 (identidade visual, precede F1-04 e F1-09), F1-15 (quizzes de identificar acorde), depois F1-03, F1-04, F1-05.
 - **Memórias do projeto** em `~/.claude/projects/-home-felipe-projetos-pessoal-cifrai/memory/` (fuso Rio Branco, CI, stack no ar, referência Duolingo, direção de design).

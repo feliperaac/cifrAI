@@ -170,4 +170,23 @@ describe('abertura Afinação', () => {
     const second = renderHome();
     expect(second.container.firstElementChild).toHaveAttribute('data-opening', 'off');
   });
+
+  it('logo tem um único rótulo acessível e nenhum texto duplicado', () => {
+    sessionStorage.clear();
+    const { container } = renderHome();
+    const logo = screen.getByRole('img', { name: 'CifrAI' });
+    expect(logo.tagName.toLowerCase()).toBe('svg');
+    expect(logo.querySelector('title, text')).toBeNull();
+    expect(container.querySelectorAll('.opening-arc')).toHaveLength(2);
+  });
+
+  it('logo também aparece (sem animar) fora da Home', () => {
+    sessionStorage.clear();
+    render(
+      <MemoryRouter initialEntries={['/praticar']}>
+        <AppLayout />
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole('img', { name: 'CifrAI' })).toBeInTheDocument();
+  });
 });

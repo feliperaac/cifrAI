@@ -1,84 +1,51 @@
-// Gera icones PWA (PNG) a partir de formas simples, sem dependencias. Arte original.
-import { deflateSync } from 'node:zlib';
-import { writeFileSync } from 'node:fs';
+// Gera favicon, icones PWA (PNG) e os paths do Wordmark a partir da logo oficial
+// (variante C "Minima", fonte: docs/design/logo/c-minima-*.svg).
+//
+// Uso: LOGO_TOOLS=<pasta com node_modules/@resvg/resvg-js> pnpm --filter @cifrai/web icons
+// resvg fica FORA do repo (nao e dependencia do projeto); so os PNG/SVG gerados sao versionados.
+// Se mudar a arte, rode antes `node docs/design/logo/gerar.mjs` (precisa de LOGO_TOOLS tambem).
+import { createRequire } from 'node:module';
+import { readFileSync, writeFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const crcTable = Array.from({ length: 256 }, (_, n) => {
-  let c = n;
-  for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-  return c >>> 0;
-});
-const crc = (buf) => {
-  let c = 0xffffffff;
-  for (const b of buf) c = crcTable[(c ^ b) & 0xff] ^ (c >>> 8);
-  return (c ^ 0xffffffff) >>> 0;
-};
-const chunk = (type, data) => {
-  const len = Buffer.alloc(4);
-  len.writeUInt32BE(data.length);
-  const body = Buffer.concat([Buffer.from(type), data]);
-  const sum = Buffer.alloc(4);
-  sum.writeUInt32BE(crc(body));
-  return Buffer.concat([len, body, sum]);
-};
+const here = path.dirname(fileURLToPath(import.meta.url));
+const logoDir = path.join(here, '..', '..', '..', 'docs', 'design', 'logo');
+const pub = (name) => path.join(here, '..', 'public', name);
+const read = (name) => readFileSync(path.join(logoDir, name), 'utf8');
 
-const BG = [168, 51, 15];
-const FG = [251, 245, 234];
+const tools = process.env.LOGO_TOOLS;
+if (!tools) throw new Error('Defina LOGO_TOOLS (pasta com node_modules de @resvg/resvg-js)');
+const { Resvg } = createRequire(path.join(tools, 'x.js'))('@resvg/resvg-js');
 
-// safe: fracao do lado ocupada pelo desenho (maskable precisa de margem maior).
-function render(size, { safe, rounded }) {
-  const raw = Buffer.alloc((size * 4 + 1) * size);
-  const r = size * 0.22;
-  const cx = size / 2;
-  const cy = size / 2;
-  const s = size * safe;
-  for (let y = 0; y < size; y++) {
-    raw[y * (size * 4 + 1)] = 0;
-    for (let x = 0; x < size; x++) {
-      let inside = true;
-      if (rounded) {
-        const dx = Math.max(r - x, 0, x - (size - 1 - r));
-        const dy = Math.max(r - y, 0, y - (size - 1 - r));
-        inside = dx * dx + dy * dy <= r * r;
-      }
-      // Desenho: 6 "cordas" verticais e uma casa (barra) sobre elas.
-      const u = (x - cx) / s;
-      const v = (y - cy) / s;
-      let fg = false;
-      if (Math.abs(v) <= 0.5) {
-        for (let i = 0; i < 6; i++) {
-          if (Math.abs(u - (-0.3 + i * 0.12)) <= 0.014) fg = true;
-        }
-        if (Math.abs(v - 0.12) <= 0.035 && Math.abs(u) <= 0.34) fg = true;
-        if (Math.abs(v + 0.5) <= 0.02 && Math.abs(u) <= 0.34) fg = true;
-      }
-      const c = fg ? FG : BG;
-      const o = y * (size * 4 + 1) + 1 + x * 4;
-      raw[o] = c[0];
-      raw[o + 1] = c[1];
-      raw[o + 2] = c[2];
-      raw[o + 3] = inside ? 255 : 0;
-    }
-  }
-  const ihdr = Buffer.alloc(13);
-  ihdr.writeUInt32BE(size, 0);
-  ihdr.writeUInt32BE(size, 4);
-  ihdr[8] = 8;
-  ihdr[9] = 6;
-  return Buffer.concat([
-    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
-    chunk('IHDR', ihdr),
-    chunk('IDAT', deflateSync(raw)),
-    chunk('IEND', Buffer.alloc(0)),
-  ]);
-}
+const app = read('c-minima-app-claro.svg'); // tile cheio, arte em 80% central (zona segura maskable)
+const tileRect = '<rect width="256" height="256" fill="#A8330F"/>';
+if (!app.includes(tileRect)) throw new Error('Formato do tile mudou; ajuste o script.');
+const rounded = app.replace(tileRect, '<rect width="256" height="256" rx="56" fill="#A8330F"/>');
 
-const out = new URL('../public/', import.meta.url);
-const files = {
-  'icon-192.png': [192, { safe: 1.4, rounded: true }],
-  'icon-512.png': [512, { safe: 1.4, rounded: true }],
-  'icon-maskable-512.png': [512, { safe: 1.0, rounded: false }],
-  'apple-touch-icon.png': [180, { safe: 1.4, rounded: false }],
-};
-for (const [name, [size, opts]] of Object.entries(files)) {
-  writeFileSync(new URL(name, out), render(size, opts));
-}
+const png = (svg, px) => new Resvg(svg, { fitTo: { mode: 'width', value: px } }).render().asPng();
+
+writeFileSync(pub('favicon.svg'), rounded);
+writeFileSync(pub('icon-192.png'), png(rounded, 192));
+writeFileSync(pub('icon-512.png'), png(rounded, 512));
+writeFileSync(pub('icon-maskable-512.png'), png(app, 512));
+writeFileSync(pub('apple-touch-icon.png'), png(app, 180)); // iOS aplica o proprio arredondamento
+
+// Paths do Wordmark (icone simplificado + "CifrAI"), lidos do lockup oficial.
+const lock = read('c-minima-lockup-claro.svg');
+const body = lock.match(/<path d="([^"]+)" fill="#A8330F"\/><circle cx="0" cy="70"/)?.[1];
+const wm = [
+  ...lock.matchAll(
+    /<g transform="translate\(138 103\)"><path fill="#1E1812" d="([^"]+)"\/><path fill="#A8330F" d="([^"]+)"/g,
+  ),
+][0];
+const viewBox = lock.match(/viewBox="([^"]+)"/)?.[1];
+if (!body || !wm || !viewBox) throw new Error('Formato do lockup mudou; ajuste o script.');
+writeFileSync(
+  path.join(here, '..', 'src', 'components', 'ui', 'logoPaths.ts'),
+  `// Gerado por apps/web/scripts/generate-icons.mjs a partir de docs/design/logo (variante C). Nao edite.\n` +
+    `export const LOGO_VIEWBOX = '${viewBox}';\n` +
+    `export const GUITAR_BODY_D = '${body}';\n` +
+    `export const WORD_CIFR_D = '${wm[1]}';\n` +
+    `export const WORD_AI_D = '${wm[2]}';\n`,
+);

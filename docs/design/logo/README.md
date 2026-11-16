@@ -1,6 +1,38 @@
-# Logo do CifrAI (F1-17, fase 1: proposta)
+# Logo do CifrAI
 
-Status: **proposta**. Nada foi aplicado em `apps/web` nem em `public/`. Comparação visual: abrir `docs/design/logo/comparar.html` no navegador (estático, só `<img>` para os SVGs, fundo claro e escuro, tamanhos reais 16, 32, 64 e 192 px).
+## Variante oficial: C "Mínima" (F1-17 fase 2, aprovada pelo usuário)
+
+Violão inclinado dentro de um anel aberto em dois arcos, com dois selos (A e E, as cordas-nome). Wordmark "CifrAI" em Bricolage Grotesque 800 (paths), "Cifr" em tinta e "AI" em cobre.
+
+| Uso | Arquivo |
+|---|---|
+| Favicon, ícones PWA | `apps/web/public/` (favicon.svg, icon-192/512, icon-maskable-512, apple-touch-icon), a partir de `c-minima-app-claro.svg` |
+| Header do app | componente `Wordmark` (SVG inline, cores por tokens CSS), paths gerados do `c-minima-lockup-claro.svg` |
+| Fundo claro / escuro | `c-minima-lockup-claro.svg` / `-escuro.svg` |
+| Uma cor (carimbo, impressão) | `c-minima-lockup-mono-tinta.svg` / `-mono-creme.svg` |
+
+### Regras de uso
+
+- **Versão simplificada** (ícone sem as letras A/E nos selos, `*-icone-simples-*`, `*-app-*`, lockup): obrigatória abaixo de **64 px** de altura. A versão completa (`*-icone-*`) só a partir de 128 px.
+- **Tamanho mínimo**: ícone 16 px (só como favicon); lockup horizontal 24 px de altura (header usa 36 px).
+- **Área de respiro**: margem livre ao redor igual à altura do selo (cerca de 1/6 da altura do ícone), sem texto ou borda dentro dela.
+- Não girar, não esticar, não trocar as cores nem usar o `accent` âmbar (não passa 3:1 sobre o fundo claro). Em fundo sem contraste, use as versões mono.
+- Tile de app: arte em 80% central; o anel cabe dentro do círculo da zona segura maskable.
+
+### Como regenerar
+
+```
+LOGO_TOOLS=<pasta com node_modules de opentype.js, wawoff2, @resvg/resvg-js> node docs/design/logo/gerar.mjs
+LOGO_TOOLS=<mesma pasta> pnpm --filter @cifrai/web icons   # PNG, favicon e logoPaths.ts
+```
+
+As ferramentas ficam fora do repositório; só os arquivos gerados são versionados.
+
+---
+
+# Histórico: proposta das três variantes (fase 1)
+
+Status na fase 1: **proposta**. Nada foi aplicado em `apps/web` nem em `public/`. Comparação visual: abrir `docs/design/logo/comparar.html` no navegador (estático, só `<img>` para os SVGs, fundo claro e escuro, tamanhos reais 16, 32, 64 e 192 px).
 
 Brief do usuário: "um violão e uma cifra dando volta nele". Três leituras da ideia, todas desenhadas à mão (curvas Catmull-Rom sobre pontos escritos no script), sem mascote e sem nota musical.
 

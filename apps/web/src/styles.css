@@ -62,6 +62,7 @@
   /* Tipografia */
   --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
   --font-body: 'Figtree', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --logo-hole: #1e1812;
   color-scheme: light;
 }
 
@@ -79,6 +80,7 @@
   --color-success: #5fd49a;
   --color-danger: #ff8f86;
   --color-focus: #8db9ff;
+  --logo-hole: #2a0e03;
   color-scheme: dark;
 }
 
@@ -97,6 +99,7 @@
     --color-success: #5fd49a;
     --color-danger: #ff8f86;
     --color-focus: #8db9ff;
+    --logo-hole: #2a0e03;
     color-scheme: dark;
   }
 }
@@ -378,17 +381,18 @@ body {
 }
 
 /* ---------- Abertura "Afinacao": uma unica vez por sessao, so na Home ---------- */
-.opening-string {
-  stroke: var(--color-primary);
-  stroke-width: 2;
-  stroke-linecap: round;
+.opening-arc {
+  stroke: var(--color-text);
 }
 
-[data-opening='play'] .opening-string {
+[data-opening='play'] .opening-arc {
   stroke-dasharray: 100;
   stroke-dashoffset: 100;
-  animation: draw 500ms var(--ease-out) forwards;
-  animation-delay: calc(var(--i, 0) * 60ms);
+  animation: draw 700ms var(--ease-out) forwards;
+}
+
+[data-opening='play'] .opening-mark {
+  animation: fade-in 400ms var(--ease-out) 350ms both;
 }
 
 [data-opening='play'] .opening-word {
@@ -398,6 +402,12 @@ body {
 [data-opening='play'] .opening-item {
   animation: rise-10 400ms var(--ease-out) both;
   animation-delay: calc(500ms + var(--i, 0) * 80ms);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
 }
 
 @keyframes draw {

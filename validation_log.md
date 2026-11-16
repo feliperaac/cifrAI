@@ -358,3 +358,15 @@
 - **Erro não pune (D2):** sem vidas; XP = `lesson.xp` ao chegar no resultado, independente de acertos
 - **NÃO VERIFICADO:** aparência e fluxo no navegador em 360×640, contraste do fundo de feedback (`color-mix`), foco ao ir para o resultado (fica no botão), teclado/leitor de tela reais, Lighthouse
 - **Decisões/pendências:** XP por exercício, XP reduzido em repetição e teto diário (ADR-0002) seguem sem regra (decisão do usuário da F1-01); nada é salvo ainda (F1-07/F1-11); não há fonte real de lições no front (`defaultLessonLoader` é o ponto a trocar); tipos além de `multiple_choice` caem em "ainda não disponível" + "Pular exercício" até a F1-05
+
+---
+
+## VL-0023 — F1-17 Logo CifrAI, variante C "Mínima" (PARCIAL: sem verificação visual no app)
+- **Data:** 2026-11-15 (fuso de referência: America/Rio_Branco)
+- **Tarefa:** F1-17
+- **Agente:** frontend-ui (reverificado pelo agente principal)
+- **Escopo validado:** 3 propostas originais em SVG (`docs/design/logo/`, texto convertido em paths, sem `<text>`/fonte); escolha do usuário: variante C; favicon e ícones PWA (192, 512, maskable, apple-touch) a partir do tile simplificado; `Wordmark` (lockup C em SVG inline, `role="img"` "CifrAI", cores por tokens, `--logo-hole`) no header de todas as rotas; abertura "Afinação" adaptada (arcos do anel se desenham, violão em fade, palavra sobe); regras de uso no README da logo; `generate-icons.mjs` reescrito (resvg fora do repo via `LOGO_TOOLS`)
+- **Comando executado (agente principal):** `pnpm validate` completo OK (format, lint, typecheck, test, content:validate, web build, docker dev e prod). Testes web 112. JS inicial ≈91 kB gzip. O agente conferiu os 4 PNG com leitura de imagem e a legibilidade em 16/32/64/192 px na proposta.
+- **Contraste (proposta):** cifras 16,20 claro/16,01 escuro; cobre sobre fundo 6,15/8,01; exceção documentada: boca do violão sobre o corpo no claro 2,63 (detalhe decorativo, roseta delimita)
+- **NÃO VERIFICADO:** lockup e abertura no navegador (tema escuro, `--logo-hole`, `prefers-reduced-motion`), instalação do PWA e recorte maskable em Android, kerning do wordmark ("r"→"A", ajuste manual), busca de anterioridade da marca, daltonismo; `<desc>` do favicon cita cifras que a versão simplificada não mostra
+- **Decisões/pendências:** o usuário escolheu a C; ele precisa olhar o header e a abertura em `http://192.168.20.234:5173/` (aba anônima para ver a abertura) e o ícone instalado

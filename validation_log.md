@@ -324,3 +324,6 @@
 ### VL-0020 — adendo (2026-11-15)
 - **Ajuste a pedido do usuário:** legenda movida para ACIMA do diagrama (nome em cima, acorde embaixo), nos modos tocável e estático. Gates após o ajuste: `format:check`, `lint`, `typecheck` OK; testes web 75 OK.
 - **Verificação visual do usuário:** ao ver a galeria com o ajuste, respondeu "ficou melhor!". Não detalhou 360×640, temas nem contraste, que seguem sem checagem própria.
+
+### VL-0018 / VL-0019 — adendo de verificação do usuário (2026-11-15)
+- **F1-02 e F1-13:** o usuário olhou `/dev/acordes` e ouviu o som (v2) e respondeu "tudo conferido e certo". Fecham as pendências "NÃO VERIFICADO" de aparência e de timbre. Latência, WebView Android/iOS e leitor de tela real seguem para F4-03 e revisão de acessibilidade.

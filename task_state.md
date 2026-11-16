@@ -5,7 +5,7 @@
 
 **Última atualização:** 2026-11-15
 **Fase atual:** F1 — Núcleo do produto (F0 concluída)
-**Próxima tarefa:** F1-16 (identidade visual), depois F1-04 e F1-09. Aguardam verificação do usuário: F1-02 (visual) e F1-13 (som)
+**Próxima tarefa:** F1-16 (identidade visual), depois F1-04 e F1-09. Nada aguardando verificação do usuário
 **Ambiente:** VM dev (Oracle 19c local) · VM prod: ainda não provisionada
 
 ## Regras de uso
@@ -30,7 +30,7 @@
 
 ## F1 — Núcleo do produto (MVP sem áudio)
 - [x] F1-01 `pedagogy-content` Schema Zod de lição/exercício em `packages/content` + validador (`content:validate`). ADR-0002: o catálogo deve expor XP por lição, número de exercícios e estado "aposentado" (VL-0017)
-- [~] F1-02 `frontend-ui` Componente `ChordDiagram` (SVG, suporte a canhoto, pestana, X/O)
+- [x] F1-02 `frontend-ui` Componente `ChordDiagram` (SVG, suporte a canhoto, pestana, X/O) (VL-0018, verificado pelo usuário)
 - [ ] F1-03 `frontend-ui` Componente `Fretboard` interativo (tocar casas para montar acorde)
 - [ ] F1-16 `frontend-ui` Identidade visual e design system: paleta própria em CSS vars (claro/escuro, contraste forte), tipografia marcante, escala de espaçamento/raio/sombra, UMA abertura de página coreografada, primeiros blocos reutilizáveis (botão, card, barra de progresso, selo de XP). Diretriz do usuário em 2026-11-15 (.claude/agents/frontend-ui.md, "Direção visual"). Precede F1-04 e F1-09; começa depois da F1-14
 - [ ] F1-04 `frontend-ui` Player de lição: máquina de estados, feedback, barra de progresso, tela de resultado (XP)
@@ -41,7 +41,7 @@
 - [ ] F1-09 `frontend-ui` Trilha de unidades (mapa estilo Duolingo), perfil, meta diária, streak
 - [ ] F1-10 `backend-api` Revisão espaçada (SM-2 simplificado) para cifras e acordes
 - [ ] F1-11 `frontend-ui` Offline-first: progresso em IndexedDB e sync ao reconectar
-- [~] F1-13 `audio-dsp` Tocar o acorde ao clicar no `ChordDiagram` (síntese de corda dedilhada, strum 6ª→1ª, notas calculadas das casas e da afinação E A D G B E). Pedido do usuário em 2026-11-15; "idêntico ao violão" não é garantível por síntese: ver relatório e decidir por amostras (CC0) depois
+- [x] F1-13 `audio-dsp` Tocar o acorde ao clicar no `ChordDiagram` (síntese de corda dedilhada, strum 6ª→1ª, notas calculadas das casas e da afinação E A D G B E). Pedido do usuário em 2026-11-15; "idêntico ao violão" não é garantível por síntese: ver relatório e decidir por amostras (CC0) depois (VL-0019, som aprovado pelo usuário)
 - [x] F1-14 `frontend-ui` Nome por extenso abaixo do acorde no `ChordDiagram` (ex.: "G (Sol)", "Am (Lá menor)"). Sugestão do usuário em 2026-11-15 (VL-0020; nome acima do diagrama, aprovado pelo usuário)
 - [ ] F1-15 `pedagogy-content` + `frontend-ui` Exercícios de identificar acorde: mostrar a cifra e perguntar o nome (e o inverso, diagrama → nome), cifra ↔ nome (Sol, Lá…). Estende o schema (mídia de acorde em `multiple_choice`); alinhar com F1-05 e F2-03. Sugestão do usuário em 2026-11-15
 - [ ] F1-12 `qa-validator` E2E Playwright (viewport mobile) do fluxo: abrir → lição → XP → streak

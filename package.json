@@ -16,7 +16,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "validate": "bash infra/scripts/validate.sh",
-    "content:validate": "echo 'content:validate: PLACEHOLDER - validador Zod sera implementado em F1-01' && exit 0"
+    "content:validate": "pnpm --filter @cifrai/content validate"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

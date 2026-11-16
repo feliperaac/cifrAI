@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "courseId": "c01",
+  "id": "u90",
+  "title": "Unidade de teste",
+  "description": "Fixture usada só nos testes do validador.",
+  "lessons": [
+    {
+      "id": "u90.l01",
+      "title": "Lição de teste um",
+      "objective": "Exercitar os tipos básicos.",
+      "category": "concept",
+      "status": "active",
+      "xp": 10,
+      "exerciseCount": 3,
+      "prerequisites": [],
+      "exercises": [
+        {
+          "id": "u90.l01.e01",
+          "type": "multiple_choice",
+          "prompt": "Qual opção é a certa?",
+          "explanation": "A opção a é a certa neste teste.",
+          "options": [
+            { "id": "a", "text": "Opção A" },
+            { "id": "b", "text": "Opção B" }
+          ],
+          "correctOptionId": "a"
+        },
+        {
+          "id": "u90.l01.e02",
+          "type": "match_pairs",
+          "prompt": "Associe os pares.",
+          "hint": "Pense em letras e nomes.",
+          "explanation": "Cada letra tem um nome.",
+          "pairs": [
+            { "left": "um", "right": "1" },
+            { "left": "dois", "right": "2" }
+          ]
+        },
+        {
+          "id": "u90.l01.e03",
+          "type": "order",
+          "prompt": "Coloque em ordem.",
+          "explanation": "A ordem é crescente.",
+          "items": ["primeiro", "segundo", "terceiro"]
+        }
+      ]
+    },
+    {
+      "id": "u90.l02",
+      "title": "Lição de teste dois",
+      "objective": "Exercitar técnica e acorde.",
+      "category": "technique",
+      "status": "active",
+      "xp": 15,
+      "exerciseCount": 2,
+      "prerequisites": ["u90.l01"],
+      "safetyNotice": "Faça pausas. Se sentir dor ou desconforto, pare.",
+      "exercises": [
+        {
+          "id": "u90.l02.e01",
+          "type": "build_chord",
+          "prompt": "Monte o acorde.",
+          "explanation": "Confira o diagrama.",
+          "chordId": "em"
+        },
+        {
+          "id": "u90.l02.e02",
+          "type": "practice_timer",
+          "prompt": "Pratique no violão.",
+          "explanation": "Vá com calma.",
+          "durationSeconds": 60
+        }
+      ]
+    },
+    {
+      "id": "u90.l03",
+      "title": "Música de teste",
+      "objective": "Tocar uma música de fixture.",
+      "category": "song",
+      "status": "retired",
+      "xp": 20,
+      "exerciseCount": 1,
+      "prerequisites": ["u90.l02"],
+      "source": { "kind": "original", "title": "Progressão de teste" },
+      "exercises": [
+        {
+          "id": "u90.l03.e01",
+          "type": "practice_timer",
+          "prompt": "Toque a progressão.",
+          "explanation": "Repita devagar.",
+          "durationSeconds": 120
+        }
+      ]
+    }
+  ]
+}

@@ -280,3 +280,16 @@
 - **NÃO VERIFICADO / LIMITES:** nenhum conteúdo real (F2); `chordId` não é validado contra o catálogo de acordes (vem da F1-02); a checagem de letra pega só nomes de chave, não texto de letra num campo comum (revisão humana necessária); a checagem do `safetyNotice` (pausa, dor, desconforto) é heurística; regras cruzadas de uma unidade só aparecem depois que os erros do Zod são corrigidos; mínimo de 8 exercícios por lição não é validado (máximo é 20)
 - **Decisões do usuário pendentes:** teto de XP por lição (assumido 100, `MAX_LESSON_XP`); lista de categorias (`concept|technique|chord|rhythm|song|review`); XP por exercício além de por lição; mínimo de exercícios por lição; tipos `listen_identify`, `tuner_task` e `rhythm_tap` ficam para a F3
 - **Ações/pendências:** F1-02 valida `chordId` contra o catálogo; F1-05 pode pedir novos campos (opções embaralháveis, imagem/áudio em `multiple_choice`, `build_chord` com cordas mudas); ao mudar o schema, subir `schemaVersion` e atualizar os testes
+
+---
+
+## VL-0018 — F1-02 ChordDiagram (PARCIAL: sem checagem visual)
+- **Data:** 2026-11-15 (fuso de referência: America/Rio_Branco)
+- **Tarefa:** F1-02
+- **Agente:** frontend-ui (reverificado pelo agente principal)
+- **Ambiente:** Node local 20.20.2; reverificação em Node 24.11.1 (Debian glibc, checkout limpo com `.env.example`, `pnpm install --frozen-lockfile`); stack dev no ar
+- **Escopo validado:** modelo `ChordShape` (Zod) e catálogo em `packages/shared`; `ChordDiagram` e `chordGeometry` em `apps/web`; galeria `/dev/acordes` (só em dev); `chordId` do `build_chord` validado contra o catálogo em `packages/content`; helper `tp()` no i18n; dependências de workspace (`@cifrai/shared`) e `zod` 4.6.7 no shared
+- **Comandos executados (agente principal, checkout limpo Node 24):** `format:check`, `lint`, `typecheck`, `content:validate` (rc 0), `pnpm test`, `pnpm --filter @cifrai/web build`, busca de "dev/acordes", "Galeria de acordes" e "Mostrar dedos" em `apps/web/dist`. O agente rodou também `pnpm validate` completo (exit 0, builds docker dev e prod OK).
+- **Resultado:** ✅ testes: shared 15, content 32, web 38, api 14; JS inicial 266,5 kB (85,16 kB gzip, orçamento 200 KB); **0 ocorrências da galeria no build de produção**; stack dev `healthy` e `/dev/acordes` responde 200 em :5173. Digitações do catálogo (Em, Am, E, A, D, C, G, Dm, D7, G7) conferidas por teste que calcula as notas que soam e por revisão manual do agente.
+- **NÃO VERIFICADO (DoD exige UI em 360×640 e teclado/leitor de tela):** aparência real em 360×640, temas claro e escuro, destro/canhoto, contraste das bolinhas, foco por teclado, leitura por leitor de tela; sem navegador na VM do agente nem do agente principal
+- **Decisões/pendências:** o usuário deve olhar `http://192.168.20.234:5173/dev/acordes` e confirmar; confirmar a preferência de dedilhado (G 2-1-3 ou 3-2-4; A 1-2-3); decidir se entra um acorde com pestana (F ou Bm) no catálogo, já que nenhum acorde do F2 tem pestana (suporte coberto só por teste unitário); `aria-label` e `<desc>` repetem o texto (revisar com TalkBack/NVDA); a galeria tem texto hardcoded de propósito (para não ir ao bundle de produção); o catálogo só é validado contra o schema nos testes, não em runtime; quem tiver web dev rodando precisa recriar a imagem e renovar o volume anônimo (`up -d --build --renew-anon-volumes web`)

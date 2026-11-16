@@ -85,3 +85,24 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* Acorde tocável: feedback nao depende so de cor (borda mais grossa + legenda "Tocando") */
+.chord-play {
+  border: 2px solid transparent;
+  transition:
+    transform 120ms ease-out,
+    border-color 120ms;
+}
+
+.chord-play:active,
+.chord-play[data-state='playing'] {
+  transform: scale(0.97);
+  border: 4px double var(--color-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chord-play:active,
+  .chord-play[data-state='playing'] {
+    transform: none;
+  }
+}

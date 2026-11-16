@@ -35,7 +35,12 @@ export default function ChordGalleryPage() {
       <ul className="grid list-none grid-cols-2 gap-3 p-0 md:grid-cols-3 lg:grid-cols-5">
         {CHORD_CATALOG.map((chord) => (
           <li key={chord.id} className="rounded-card border border-border bg-surface p-2">
-            <ChordDiagram chord={chord} leftHanded={leftHanded} showFingers={showFingers} />
+            <ChordDiagram
+              chord={chord}
+              leftHanded={leftHanded}
+              showFingers={showFingers}
+              playable
+            />
           </li>
         ))}
       </ul>

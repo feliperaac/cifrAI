@@ -1,6 +1,6 @@
 import { CHORD_CATALOG, getChord, type ChordShape } from '@cifrai/shared';
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { ChordDiagram, describeChord } from './ChordDiagram';
 
 const chord = (id: string): ChordShape => {
@@ -182,5 +182,37 @@ describe('ChordDiagram', () => {
   it('não usa cores fixas: só tokens', () => {
     const { container } = render(<ChordDiagram chordId="c" />);
     expect(container.innerHTML).not.toMatch(/#[0-9a-f]{3,6}|rgb\(/i);
+  });
+});
+
+describe('ChordDiagram playable', () => {
+  it('por padrão não é botão', () => {
+    render(<ChordDiagram chord={chord('am')} />);
+    expect(screen.queryByRole('button')).toBeNull();
+  });
+
+  it('vira botão com nome pt-BR e mostra erro acessível sem Web Audio', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event');
+    vi.stubGlobal('AudioContext', undefined);
+    render(<ChordDiagram chord={chord('am')} playable />);
+    const button = screen.getByRole('button', { name: 'Tocar acorde Am' });
+    expect(button).toHaveAttribute('type', 'button');
+    await userEvent.setup().click(button);
+    expect(await screen.findByRole('alert')).toHaveTextContent('Seu navegador não toca áudio.');
+    vi.unstubAllGlobals();
+  });
+
+  it('Enter e Espaço acionam o clique; canhoto não muda o botão', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event');
+    vi.stubGlobal('AudioContext', undefined);
+    const user = userEvent.setup();
+    render(<ChordDiagram chord={chord('em')} playable leftHanded />);
+    const button = screen.getByRole('button', { name: 'Tocar acorde Em' });
+    button.focus();
+    await user.keyboard('{Enter}');
+    expect(await screen.findByRole('alert')).toBeInTheDocument();
+    await user.keyboard(' ');
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+    vi.unstubAllGlobals();
   });
 });

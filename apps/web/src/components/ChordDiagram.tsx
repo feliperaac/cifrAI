@@ -1,6 +1,7 @@
 import { getChord, type ChordShape } from '@cifrai/shared';
 import type { CSSProperties } from 'react';
-import { t, tp } from '../i18n';
+import { useChordPlayer } from '../audio/useChordPlayer';
+import { t, tp, type MessageKey } from '../i18n';
 import {
   DOT_RADIUS,
   FRET_HEIGHT,
@@ -26,6 +27,8 @@ export interface ChordDiagramProps {
   showFingers?: boolean;
   /** Substitui o título acessível (por padrão "Acorde Am, Lá menor"). */
   title?: string;
+  /** Torna o bloco um botão que toca o acorde (strum). Padrão: false. */
+  playable?: boolean;
 }
 
 const INK = 'var(--color-text)';
@@ -66,6 +69,64 @@ function defaultTitle(chord: ChordShape): string {
     : tp('chord.labelNamed', { name: chord.name, namePt: chord.namePt });
 }
 
+interface ChordSvgProps {
+  shape: ChordShape;
+  leftHanded: boolean;
+  size?: number;
+  showFingers: boolean;
+  title?: string;
+  /** Dentro de um botão: o botão carrega o nome e a descrição. */
+  decorative?: boolean;
+}
+
+const PLAY_ERROR_KEYS = {
+  unsupported: 'chord.play.unsupported',
+  suspended: 'chord.play.suspended',
+  failed: 'chord.play.failed',
+} as const satisfies Record<string, MessageKey>;
+
+function PlayableChord(props: Omit<ChordSvgProps, 'decorative'>) {
+  const { shape, showFingers, title } = props;
+  const player = useChordPlayer();
+  const name = title ?? defaultTitle(shape);
+  const descId = `chord-desc-${shape.id}`;
+  const statusKey: MessageKey | null =
+    player.error !== null
+      ? PLAY_ERROR_KEYS[player.error]
+      : player.state === 'loading'
+        ? 'chord.play.loading'
+        : player.state === 'playing'
+          ? 'chord.play.playing'
+          : null;
+
+  return (
+    <div className="flex flex-col items-stretch gap-1">
+      <button
+        type="button"
+        className="chord-play min-h-tap min-w-tap cursor-pointer rounded-card bg-transparent p-0 text-inherit"
+        data-state={player.state}
+        aria-label={tp('chord.play.label', { name: shape.name })}
+        aria-describedby={descId}
+        aria-busy={player.state === 'loading'}
+        onPointerEnter={player.warmUp}
+        onFocus={player.warmUp}
+        onClick={() => player.play(shape)}
+      >
+        <ChordSvg {...props} decorative />
+      </button>
+      <span id={descId} className="sr-only">
+        {`${name}: ${describeChord(shape, showFingers)}`}
+      </span>
+      <span
+        role={player.error === null ? 'status' : 'alert'}
+        className="min-h-5 text-center text-sm text-muted"
+      >
+        {statusKey === null ? '' : t(statusKey)}
+      </span>
+    </div>
+  );
+}
+
 export function ChordDiagram({
   chord,
   chordId,
@@ -73,10 +134,28 @@ export function ChordDiagram({
   size,
   showFingers = true,
   title,
+  playable = false,
 }: ChordDiagramProps) {
   const shape = chord ?? (chordId === undefined ? undefined : getChord(chordId));
   if (shape === undefined) return <p role="alert">{t('chord.unknown')}</p>;
+  const props = {
+    shape,
+    leftHanded,
+    showFingers,
+    ...(size === undefined ? {} : { size }),
+    ...(title === undefined ? {} : { title }),
+  };
+  return playable ? <PlayableChord {...props} /> : <ChordSvg {...props} />;
+}
 
+function ChordSvg({
+  shape,
+  leftHanded,
+  size,
+  showFingers,
+  title,
+  decorative = false,
+}: ChordSvgProps) {
   const rows = rowCount(shape);
   const height = viewHeight(rows);
   const accessibleTitle = title ?? defaultTitle(shape);
@@ -99,8 +178,9 @@ export function ChordDiagram({
   return (
     <svg
       viewBox={`0 0 ${VIEW_WIDTH} ${height}`}
-      role="img"
-      aria-label={description}
+      {...(decorative
+        ? { 'aria-hidden': true, focusable: false }
+        : { role: 'img', 'aria-label': description })}
       style={style}
       data-testid="chord-diagram"
       data-chord-id={shape.id}

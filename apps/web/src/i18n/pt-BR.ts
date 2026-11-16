@@ -27,6 +27,12 @@ export const messages = {
   'chord.barre': 'pestana na casa {fret} com o dedo {finger}, das cordas {from} a {to}',
   'chord.baseFret': 'diagrama começa na casa {fret}',
   'chord.fretLabel': '{fret}ª',
+  'chord.play.label': 'Tocar acorde {name}',
+  'chord.play.loading': 'Carregando o som…',
+  'chord.play.playing': 'Tocando…',
+  'chord.play.unsupported': 'Seu navegador não toca áudio.',
+  'chord.play.suspended': 'O áudio está bloqueado. Toque de novo.',
+  'chord.play.failed': 'Não foi possível tocar o som.',
   'chord.unknown': 'Acorde não encontrado.',
 } as const;
 

@@ -13,6 +13,7 @@
     "icons": "node scripts/generate-icons.mjs"
   },
   "dependencies": {
+    "@cifrai/shared": "workspace:*",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "react-router-dom": "7.18.5",

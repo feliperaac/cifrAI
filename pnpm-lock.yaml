@@ -221,6 +221,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@cifrai/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       react:
         specifier: 19.3.1
         version: 19.3.1
@@ -279,6 +282,9 @@ importers:
 
   packages/content:
     dependencies:
+      '@cifrai/shared':
+        specifier: workspace:*
+        version: link:../shared
       zod:
         specifier: 4.6.7
         version: 4.6.7
@@ -287,7 +293,11 @@ importers:
         specifier: 4.23.15
         version: 4.23.15
 
-  packages/shared: {}
+  packages/shared:
+    dependencies:
+      zod:
+        specifier: 4.6.7
+        version: 4.6.7
 
 packages:
 

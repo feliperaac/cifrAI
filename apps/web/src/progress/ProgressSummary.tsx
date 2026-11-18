@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Card } from '../components/ui/Card';
 import { XpBadge } from '../components/ui/XpBadge';
 import { t, tp } from '../i18n';
-import { formatDisplayDate } from './format';
+import { formatDays, formatDisplayDate } from './format';
 import { useProgressStore } from './progressStore';
 
 export interface ProgressSummaryProps {
@@ -68,12 +68,17 @@ export function ProgressSummary({ variant = 'compact' }: ProgressSummaryProps) {
           <Stat label={t('progress.total')} value={tp('ui.xpTotal', { n: summary.totalXp })} />
           <Stat label={t('progress.today')} value={tp('ui.xpTotal', { n: summary.todayXp })} />
           <Stat label={t('progress.lessons')} value={String(summary.lessonsCompleted)} />
+          <Stat label={t('streak.current')} value={formatDays(summary.streak.current)} />
+          <Stat label={t('streak.best')} value={formatDays(summary.streak.best)} />
         </dl>
       )}
       {summary.lastCompletedAt !== null && (
         <p className="m-0 text-sm text-muted">
           {tp('progress.lastLesson', { date: formatDisplayDate(summary.lastCompletedAt) })}
         </p>
+      )}
+      {summary.lessonsCompleted > 0 && (
+        <p className="m-0 text-sm text-muted">{t('streak.estimateNote')}</p>
       )}
       {memoryNote}
     </section>

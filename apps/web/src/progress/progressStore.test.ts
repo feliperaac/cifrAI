@@ -130,3 +130,85 @@ describe('progressStore', () => {
     expect(progress.getState().persistence).toBe('memory');
   });
 });
+
+describe('progressStore: streak, meta e progresso por lição', () => {
+  it('lição concluída aparece em completedLessonIds e persiste no log', async () => {
+    const store = createMemoryEventStore();
+    const { progress } = setup(undefined, store);
+    await progress
+      .getState()
+      .recordLessonCompleted(completion({ lesson: { id: 'u02.l01', xp: 20 } }));
+    expect(progress.getState().summary.completedLessonIds).toEqual(['u02.l01']);
+
+    const reopened = setup(undefined, store).progress;
+    await reopened.getState().load();
+    expect(reopened.getState().summary.completedLessonIds).toEqual(['u02.l01']);
+  });
+
+  it('streak por localDate no fuso do aparelho e meta atingida com XP >= meta', async () => {
+    const { progress, advance } = setup('2026-11-14T15:00:00.000Z');
+    await progress.getState().recordLessonCompleted(completion());
+    advance('2026-11-15T15:00:00.000Z');
+    await progress
+      .getState()
+      .recordLessonCompleted(completion({ lesson: { id: 'u01.l02', xp: 20 } }));
+    const { summary } = progress.getState();
+    expect(summary.streak).toMatchObject({ current: 2, best: 2, activeToday: true });
+    expect(summary.dailyGoalXp).toBe(20);
+    expect(summary.goalMetToday).toBe(true);
+    expect(summary.week.at(-1)).toMatchObject({
+      date: '2026-11-15',
+      xp: 20,
+      active: true,
+      goalMet: true,
+    });
+  });
+
+  it('hoje sem lição não zera o streak (pendente)', async () => {
+    const { progress, advance } = setup('2026-11-14T15:00:00.000Z');
+    await progress.getState().recordLessonCompleted(completion());
+    advance('2026-11-15T15:00:00.000Z');
+    await progress.getState().load();
+    await progress
+      .getState()
+      .recordLessonCompleted(completion({ eventId: newUuid(), lesson: { id: 'u01.l01', xp: 20 } }));
+    advance('2026-11-16T10:00:00.000Z');
+    await progress.getState().setDailyGoal(10);
+    expect(progress.getState().summary.streak).toMatchObject({
+      current: 2,
+      activeToday: false,
+      pendingToday: true,
+    });
+  });
+
+  it('setDailyGoal grava daily_goal.set, vale hoje e não muda o passado', async () => {
+    const { progress, store, advance } = setup('2026-11-14T15:00:00.000Z');
+    await progress.getState().recordLessonCompleted(completion());
+    advance('2026-11-15T15:00:00.000Z');
+    expect(await progress.getState().setDailyGoal(50)).toBe(true);
+    const { summary } = progress.getState();
+    expect(summary.dailyGoalXp).toBe(50);
+    expect(summary.week.find((d) => d.date === '2026-11-14')?.goalMet).toBe(true); // 20 XP >= 20 (padrão)
+    const log = await store.list();
+    expect(log.map((r) => r.event.type)).toEqual(['lesson.completed', 'daily_goal.set']);
+    expect(log[1]?.event.clientSeq).toBe(2);
+  });
+
+  it('setDailyGoal com a mesma meta não cria evento', async () => {
+    const { progress, store } = setup();
+    await progress.getState().load();
+    await progress.getState().setDailyGoal(20);
+    expect(await store.list()).toHaveLength(0);
+  });
+
+  it('falha ao gravar a meta devolve false', async () => {
+    const store: EventStore = {
+      kind: 'memory',
+      append: () => Promise.reject(new Error('x')),
+      list: () => Promise.resolve([]),
+    };
+    const { progress } = setup(undefined, store);
+    await progress.getState().load();
+    expect(await progress.getState().setDailyGoal(30)).toBe(false);
+  });
+});

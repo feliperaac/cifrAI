@@ -4,11 +4,16 @@ import { summarize } from './summary';
 
 describe('summarize', () => {
   it('sem registros: zeros', () => {
-    expect(summarize([], new Date('2026-11-15T12:00:00Z'), 'UTC').summary).toEqual({
+    expect(summarize([], new Date('2026-11-15T12:00:00Z'), 'UTC').summary).toMatchObject({
       totalXp: 0,
       todayXp: 0,
       lessonsCompleted: 0,
       lastCompletedAt: null,
+      today: '2026-11-15',
+      dailyGoalXp: 20,
+      goalMetToday: false,
+      completedLessonIds: [],
+      streak: { current: 0, best: 0 },
     });
   });
 });

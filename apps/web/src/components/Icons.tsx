@@ -40,3 +40,22 @@ export const ProfileIcon = () => (
     <path d="M4 21a8 8 0 0 1 16 0" />
   </Svg>
 );
+
+export const FlameIcon = () => (
+  <Svg>
+    <path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 .3 1.2 1 2 2 2 0-3-.5-5 1-8z" />
+  </Svg>
+);
+
+export const LockIcon = () => (
+  <Svg>
+    <rect x="5" y="11" width="14" height="9" rx="2" />
+    <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+  </Svg>
+);
+
+export const PlayIcon = () => (
+  <Svg>
+    <path d="M8 5l11 7-11 7z" />
+  </Svg>
+);

@@ -15,8 +15,14 @@ export type LessonLoader = (lessonId: string) => Promise<Lesson | null>;
  */
 export const defaultLessonLoader: LessonLoader = import.meta.env.DEV
   ? async (lessonId) => {
-      const { devLesson } = await import('../pages/dev/fixtureLessons');
-      return devLesson.id === lessonId ? devLesson : null;
+      const [{ devLesson }, { devCatalog }] = await Promise.all([
+        import('../pages/dev/fixtureLessons'),
+        import('../pages/dev/fixtureCatalog'),
+      ]);
+      if (devLesson.id === lessonId) return devLesson;
+      // As demais lições do catálogo de dev reaproveitam os exercícios da lição de fixture.
+      const entry = devCatalog.flatMap((u) => u.lessons).find((l) => l.id === lessonId);
+      return entry === undefined ? null : { ...devLesson, ...entry };
     }
   : () => Promise.resolve(null);
 

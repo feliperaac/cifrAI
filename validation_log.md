@@ -438,3 +438,14 @@
 
 ### VL-0027 — adendo de verificação do usuário (2026-11-17)
 - O usuário ouviu os sons de acerto, erro e conclusão no player e respondeu "tudo ótimo". Fecha a pendência de audição do timbre. iOS/Android, mudo do iOS e latência em aparelho seguem para a F4-03.
+
+---
+
+## VL-0028 — F1-09 Trilha, perfil, meta diária e streak (PARCIAL: sem verificação visual)
+- **Data:** 2026-11-17 (fuso de referência: America/Rio_Branco)
+- **Tarefa:** F1-09
+- **Agente:** frontend-ui (reverificado pelo agente principal)
+- **Escopo validado:** `UnitPath` com estados bloqueado/atual/concluído e regra de desbloqueio (`pathState.ts`; ordem do currículo, só lições ativas, `prerequisites` ativos, no máximo uma "atual"; só regra de UI, deep link não bloqueia); `CurriculumLoader` substituível (produção devolve `[]` → "Em breve"; catálogo de DEV com 3 unidades fora do bundle de produção); `computeStreak` (dias por `localDate`; hoje sem atividade não zera; atrasados >7 dias ignorados via `recordedOn`; `estimate: true`) e meta diária (padrão 20 XP; opções 10/20/30/50; evento `daily_goal.set` v1 no envelope do ADR-0002; meta vale a partir do `localDate`) em `packages/shared`; cards de streak e meta, `GoalPicker`, `WeekCalendar`, perfil com XP total, sequência atual/melhor e lições distintas concluídas; `docs/design/trilha.md`
+- **Comando executado (agente principal):** `pnpm validate` completo OK. Testes: shared 81, content 41, api 14, web 242; JS inicial 131,5 kB gzip (orçamento 200 KB, avisar se apertar), CSS 7 kB; textos da fixture ausentes em `dist/assets`; sem dependência nova.
+- **NÃO VERIFICADO:** aparência em 360/768/1280 px, serpenteio da trilha, contraste do cabeçalho "atual" (accent) nos dois temas, teclado e leitor de tela reais, Lighthouse, E2E
+- **Decisões/pendências:** "hoje" só atualiza ao recarregar (virada da meia-noite com aba aberta); `today`/`localDate` seguem o fuso do aparelho (ADR-0002), Rio_Branco só na exibição, o que difere do pedido literal quando o aparelho está em outro fuso; `lessonsCompleted` conta repetições, a trilha usa lições distintas; o sync (F1-11) precisa preencher `recordedOn`; a união `ProgressEvent` nova deve ser integrada pelo backend na F1-08; em DEV lições além de `u99.l01` reaproveitam os exercícios da fixture

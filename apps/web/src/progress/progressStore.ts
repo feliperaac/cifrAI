@@ -1,8 +1,14 @@
-import { ProgressEventSchema, type XpReason } from '@cifrai/shared';
+import {
+  DailyGoalSetEventSchema,
+  LessonCompletedEventSchema,
+  type DailyGoalXp,
+  type XpReason,
+} from '@cifrai/shared';
 import { create } from 'zustand';
 import { CONTENT_VERSION, DISPLAY_TIME_ZONE } from '../config';
-import { createEventStore, type EventStore, type StoredLessonEvent } from './eventStore';
+import { createEventStore, type EventStore, type StoredRecord } from './eventStore';
 import { EMPTY_SUMMARY, summarize, type ProgressSummary } from './summary';
+import { newUuid } from './uuid';
 
 export interface LessonCompletion {
   /** Gerado uma vez por execução da lição: é a chave de idempotência. */
@@ -41,6 +47,8 @@ export interface ProgressState {
   persistence: EventStore['kind'];
   summary: ProgressSummary;
   load: () => Promise<void>;
+  /** Grava `daily_goal.set` (vale a partir de hoje). Devolve false se não foi possível gravar. */
+  setDailyGoal: (goalXp: DailyGoalXp) => Promise<boolean>;
   recordLessonCompleted: (completion: LessonCompletion) => Promise<CompletionOutcome>;
 }
 
@@ -48,8 +56,7 @@ export interface ProgressState {
 export function createProgressStore(deps: ProgressDeps) {
   let loading: Promise<void> | null = null;
 
-  const recompute = (records: StoredLessonEvent[]) =>
-    summarize(records, deps.now(), deps.timeZone());
+  const recompute = (records: StoredRecord[]) => summarize(records, deps.now(), deps.timeZone());
 
   return create<ProgressState>()((set, get) => ({
     status: 'idle',
@@ -73,6 +80,34 @@ export function createProgressStore(deps: ProgressDeps) {
       })();
       return loading;
     },
+    async setDailyGoal(goalXp) {
+      if (get().summary.dailyGoalXp === goalXp && get().status === 'ready') return true;
+      try {
+        const eventId = newUuid();
+        await deps.store.append(eventId, ({ deviceId, clientSeq }) => ({
+          event: DailyGoalSetEventSchema.parse({
+            eventId,
+            type: 'daily_goal.set',
+            schemaVersion: 1,
+            payload: { goalXp },
+            contentVersion: CONTENT_VERSION,
+            deviceId,
+            clientSeq,
+            clientTs: deps.now().toISOString(),
+            clientTz: deps.timeZone(),
+          }),
+        }));
+        set({
+          status: 'ready',
+          persistence: deps.store.kind,
+          summary: recompute(await deps.store.list()).summary,
+        });
+        return true;
+      } catch {
+        set({ persistence: deps.store.kind });
+        return false;
+      }
+    },
     async recordLessonCompleted(completion) {
       const failed = (): CompletionOutcome => ({
         status: 'error',
@@ -83,7 +118,7 @@ export function createProgressStore(deps: ProgressDeps) {
       try {
         const status = await deps.store.append(completion.eventId, ({ deviceId, clientSeq }) => ({
           lessonXp: completion.lesson.xp,
-          event: ProgressEventSchema.parse({
+          event: LessonCompletedEventSchema.parse({
             eventId: completion.eventId,
             type: 'lesson.completed',
             schemaVersion: 1,

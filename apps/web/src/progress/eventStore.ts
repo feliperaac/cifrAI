@@ -1,4 +1,8 @@
-import { ProgressEventSchema, type LessonCompletedEvent } from '@cifrai/shared';
+import {
+  ProgressEventSchema,
+  type DailyGoalSetEvent,
+  type LessonCompletedEvent,
+} from '@cifrai/shared';
 import { newUuid } from './uuid';
 
 /**
@@ -9,6 +13,18 @@ export interface StoredLessonEvent {
   event: LessonCompletedEvent;
   lessonXp: number;
 }
+
+/** Registro de `daily_goal.set`: só fatos, sem XP. */
+export interface StoredGoalEvent {
+  event: DailyGoalSetEvent;
+}
+
+export type StoredRecord = StoredLessonEvent | StoredGoalEvent;
+
+export const isLessonRecord = (record: StoredRecord): record is StoredLessonEvent =>
+  record.event.type === 'lesson.completed';
+export const isGoalRecord = (record: StoredRecord): record is StoredGoalEvent =>
+  record.event.type === 'daily_goal.set';
 
 export interface AppendMeta {
   deviceId: string;
@@ -24,12 +40,12 @@ export type AppendStatus = 'added' | 'duplicate';
  */
 export interface EventStore {
   readonly kind: 'indexeddb' | 'memory';
-  append(eventId: string, build: (meta: AppendMeta) => StoredLessonEvent): Promise<AppendStatus>;
-  list(): Promise<StoredLessonEvent[]>;
+  append(eventId: string, build: (meta: AppendMeta) => StoredRecord): Promise<AppendStatus>;
+  list(): Promise<StoredRecord[]>;
 }
 
 export function createMemoryEventStore(): EventStore {
-  const events = new Map<string, StoredLessonEvent>();
+  const events = new Map<string, StoredRecord>();
   let deviceId: string | undefined;
   let lastSeq = 0;
   return {
@@ -49,13 +65,15 @@ export function createMemoryEventStore(): EventStore {
   };
 }
 
-const bySeq = (a: StoredLessonEvent, b: StoredLessonEvent) => a.event.clientSeq - b.event.clientSeq;
+const bySeq = (a: StoredRecord, b: StoredRecord) => a.event.clientSeq - b.event.clientSeq;
 
-function parseRecord(value: unknown): StoredLessonEvent | null {
+function parseRecord(value: unknown): StoredRecord | null {
   if (typeof value !== 'object' || value === null) return null;
   const { event, lessonXp } = value as { event?: unknown; lessonXp?: unknown };
   const parsed = ProgressEventSchema.safeParse(event);
-  if (!parsed.success || typeof lessonXp !== 'number' || !Number.isFinite(lessonXp)) return null;
+  if (!parsed.success) return null;
+  if (parsed.data.type === 'daily_goal.set') return { event: parsed.data };
+  if (typeof lessonXp !== 'number' || !Number.isFinite(lessonXp)) return null;
   return { event: parsed.data, lessonXp };
 }
 

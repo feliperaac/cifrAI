@@ -531,6 +531,133 @@ body {
   }
 }
 
+/* ---------- Trilha de unidades (UnitPath) ----------
+   Largura-agnostica: a coluna ja limita a largura; o desvio lateral usa so margem em rem. */
+.path-unit-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  border: var(--border-width) solid var(--color-text);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  padding: var(--space-4);
+  color: var(--color-text);
+}
+
+.path-unit-head[data-state='current'] {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.path-unit-head[data-state='locked'] {
+  border-style: dashed;
+  color: var(--color-text-muted);
+}
+
+.path-row {
+  margin-inline-start: calc(var(--wind, 0) * 1rem);
+  max-width: 28rem;
+}
+
+.path-node {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 4rem;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--color-text);
+  font: inherit;
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.path-node__disc {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  border: var(--border-width) solid var(--color-text);
+  border-radius: var(--radius-pill);
+  background: var(--color-raised);
+  box-shadow: var(--shadow-press);
+  transition:
+    transform 120ms var(--ease-out),
+    box-shadow 120ms var(--ease-out);
+}
+
+.path-node[data-state='done'] .path-node__disc {
+  background: var(--color-success);
+  color: var(--color-bg);
+}
+
+.path-node[data-state='current'] .path-node__disc {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.path-node[data-state='locked'] {
+  cursor: not-allowed;
+  color: var(--color-text-muted);
+}
+
+.path-node[data-state='locked'] .path-node__disc {
+  border-style: dashed;
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  box-shadow: none;
+  color: var(--color-text-muted);
+}
+
+.path-node:not([data-state='locked']):active .path-node__disc {
+  transform: translateY(3px);
+  box-shadow: var(--shadow-press-down);
+}
+
+.path-node__text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.path-node__title {
+  font-weight: 700;
+}
+
+.path-node__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.875rem;
+}
+
+.path-node__badge {
+  border: var(--border-width) solid currentColor;
+  border-radius: var(--radius-pill);
+  padding: 0 var(--space-2);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.path-hint {
+  margin: var(--space-1) 0 0;
+  padding-inline-start: calc(4rem + var(--space-3));
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.path-hint:empty {
+  display: none;
+}
+
 /* ---------- Abertura "Afinacao": uma unica vez por sessao, so na Home ---------- */
 .opening-arc {
   stroke: var(--color-text);

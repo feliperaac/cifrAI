@@ -14,6 +14,7 @@ export type EventType = z.infer<typeof EventTypeSchema>;
 /** Versões de payload aceitas por tipo. Tipos novos entram só por adição. */
 export const SUPPORTED_EVENT_VERSIONS = {
   'lesson.completed': [1],
+  'daily_goal.set': [1],
 } as const;
 
 /** Limite do payload serializado em UTF-8 (ADR-0002). */
@@ -57,6 +58,16 @@ export const LessonCompletedPayloadSchema = z
   });
 export type LessonCompletedPayload = z.infer<typeof LessonCompletedPayloadSchema>;
 
+/** Metas diárias oferecidas ao aluno (XP por dia). A primeira é a mais leve; o padrão fica em daily-goal.ts. */
+export const DAILY_GOAL_OPTIONS = [10, 20, 30, 50] as const;
+export type DailyGoalXp = (typeof DAILY_GOAL_OPTIONS)[number];
+
+/** Fato: o aluno escolheu esta meta. Vale a partir do `localDate` do evento (ADR-0002 seção 4). */
+export const DailyGoalSetPayloadSchema = z.strictObject({
+  goalXp: z.union([z.literal(10), z.literal(20), z.literal(30), z.literal(50)]),
+});
+export type DailyGoalSetPayload = z.infer<typeof DailyGoalSetPayloadSchema>;
+
 const envelopeShape = {
   eventId: EventUuidSchema,
   schemaVersion: z.number().int().min(1),
@@ -80,8 +91,21 @@ export const LessonCompletedEventSchema = z
   });
 export type LessonCompletedEvent = z.infer<typeof LessonCompletedEventSchema>;
 
+export const DailyGoalSetEventSchema = z
+  .strictObject({
+    ...envelopeShape,
+    type: z.literal('daily_goal.set'),
+    schemaVersion: z.literal(1),
+    payload: DailyGoalSetPayloadSchema,
+  })
+  .refine((event) => payloadSize(event.payload) <= MAX_EVENT_PAYLOAD_BYTES, {
+    message: `Payload acima de ${MAX_EVENT_PAYLOAD_BYTES} bytes.`,
+    path: ['payload'],
+  });
+export type DailyGoalSetEvent = z.infer<typeof DailyGoalSetEventSchema>;
+
 /** Cresce por adição: os demais tipos do ADR entram aqui quando suas tarefas chegarem. */
-export const ProgressEventSchema = LessonCompletedEventSchema;
+export const ProgressEventSchema = z.union([LessonCompletedEventSchema, DailyGoalSetEventSchema]);
 export type ProgressEvent = z.infer<typeof ProgressEventSchema>;
 
 /** Data local (YYYY-MM-DD) de um instante UTC num fuso IANA. ADR-0002 item 3: usa o `clientTz` do evento. */

@@ -63,6 +63,30 @@ function contract(name: string, make: () => EventStore) {
       expect((await store.list()).map((r) => r.event.clientSeq)).toEqual([1, 2]);
     });
 
+    it('grava e relê daily_goal.set junto com lições, na mesma sequência', async () => {
+      const a = newUuid();
+      const g = newUuid();
+      await store.append(a, (m) => record(a, m));
+      await store.append(g, (m) => ({
+        event: {
+          eventId: g,
+          type: 'daily_goal.set',
+          schemaVersion: 1,
+          payload: { goalXp: 30 },
+          contentVersion: 'dev',
+          deviceId: m.deviceId,
+          clientSeq: m.clientSeq,
+          clientTs: '2026-11-15T16:00:00.000Z',
+          clientTz: 'America/Rio_Branco',
+        },
+      }));
+      const list = await store.list();
+      expect(list.map((r) => [r.event.type, r.event.clientSeq])).toEqual([
+        ['lesson.completed', 1],
+        ['daily_goal.set', 2],
+      ]);
+    });
+
     it('falha no build não grava nada nem consome sequência', async () => {
       const a = newUuid();
       const b = newUuid();

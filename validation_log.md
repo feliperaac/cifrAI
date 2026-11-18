@@ -400,3 +400,6 @@
 ### VL-0025 — adendo (2026-11-17)
 - **Verificação no Chrome do usuário (extensão conectada):** desktop em 1568 px, tema escuro: barra lateral com logo e item ativo, coluna central com borda e fundo de página, galeria em 4 colunas. Achados e correções: cards desalinhados por legenda de 2 linhas → `min-h` na legenda; topo da Home sem respiro em `lg` (não era corte: o logo vira fixo na barra lateral) → `lg:pt-8`; diagramas pequenos (grade 57% do SVG) → `viewBox` 140→116 (grade 65%, 30–106), legenda `min-h-12`. Conferido de novo no Chrome: diagramas maiores e alinhados. Commits `3b154aa` e o seguinte.
 - **Ainda NÃO verificado:** 768 e 360 px (redimensionar a janela não alterou a área visível), tema claro, abertura "Afinação" com a barra lateral, modo canhoto e casa inicial ("3fr", sem acorde no catálogo que use) no navegador.
+
+### VL-0025 — adendo de verificação do usuário (2026-11-17)
+- O usuário conferiu o app em várias larguras e respondeu "aparentemente tudo certo". Fecha as pendências visuais de 768/360 px, tema claro, abertura e canhoto, com a ressalva de que a confirmação foi geral, sem detalhe por item.

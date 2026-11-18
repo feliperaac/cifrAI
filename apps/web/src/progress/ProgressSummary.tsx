@@ -33,7 +33,11 @@ export function ProgressSummary({ variant = 'compact' }: ProgressSummaryProps) {
 
   if (variant === 'compact') {
     return (
-      <div className="flex flex-col items-start gap-1" data-testid="progress-compact">
+      <div
+        className="card flex flex-col items-start gap-1"
+        data-variant="raised"
+        data-testid="progress-compact"
+      >
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <XpBadge value={summary.totalXp} />
           <span className="font-bold text-muted">
@@ -60,7 +64,7 @@ export function ProgressSummary({ variant = 'compact' }: ProgressSummaryProps) {
       {summary.lessonsCompleted === 0 ? (
         <p className="m-0 text-muted">{t('progress.empty')}</p>
       ) : (
-        <dl className="m-0 grid grid-cols-3 gap-3">
+        <dl className="m-0 grid grid-cols-[repeat(auto-fit,minmax(6.5rem,1fr))] gap-3">
           <Stat label={t('progress.total')} value={tp('ui.xpTotal', { n: summary.totalXp })} />
           <Stat label={t('progress.today')} value={tp('ui.xpTotal', { n: summary.todayXp })} />
           <Stat label={t('progress.lessons')} value={String(summary.lessonsCompleted)} />

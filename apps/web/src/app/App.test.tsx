@@ -30,6 +30,27 @@ describe('rotas', () => {
     const nav = screen.getByRole('navigation', { name: t('nav.label') });
     expect(nav.querySelectorAll('a')).toHaveLength(3);
   });
+
+  it('tem um único landmark navigation e marca a rota atual com aria-current', () => {
+    renderAt('/afinador');
+    expect(screen.getAllByRole('navigation')).toHaveLength(1);
+    const nav = screen.getByRole('navigation', { name: t('nav.label') });
+    const current = nav.querySelectorAll('[aria-current="page"]');
+    expect(current).toHaveLength(1);
+    expect(current[0]).toHaveTextContent(t('nav.tuner'));
+  });
+
+  it('o menu vem antes do conteúdo na ordem do DOM (Tab: menu, depois conteúdo)', () => {
+    renderAt('/');
+    const nav = screen.getByRole('navigation', { name: t('nav.label') });
+    const main = screen.getByRole('main');
+    expect(nav.compareDocumentPosition(main) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('a rota do player de lição não tem menu de navegação', () => {
+    renderAt('/licao/u01.l01');
+    expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
+  });
 });
 
 // A rota é lazy: sob carga (validate roda tudo em paralelo) 1 s não basta.

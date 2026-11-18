@@ -9,7 +9,7 @@ export default function ChordGalleryPage() {
   const [showFingers, setShowFingers] = useState(true);
 
   return (
-    <section aria-labelledby="gallery-title" className="flex flex-col gap-4">
+    <section aria-labelledby="gallery-title" data-wide="true" className="flex flex-col gap-4">
       <h1 id="gallery-title" className="font-display text-2xl font-extrabold">
         Galeria de acordes (dev)
       </h1>
@@ -33,7 +33,7 @@ export default function ChordGalleryPage() {
           Mostrar dedos
         </label>
       </div>
-      <ul className="grid list-none grid-cols-2 gap-3 p-0 md:grid-cols-3 lg:grid-cols-5">
+      <ul className="grid list-none grid-cols-[repeat(auto-fill,minmax(9.5rem,1fr))] gap-3 p-0">
         {CHORD_CATALOG.map((chord) => (
           <li key={chord.id}>
             <Card variant="raised" className="p-2">

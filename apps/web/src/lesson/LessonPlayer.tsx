@@ -76,106 +76,108 @@ export function LessonPlayer({ lesson, onExit }: LessonPlayerProps) {
   const lastAnswered = state.phase === 'feedback' && state.index + 1 >= state.total;
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col pt-[env(safe-area-inset-top)]">
-      <header className="flex items-center gap-2 px-2 py-2">
-        <Button
-          variant="ghost"
-          aria-label={t('lesson.exit')}
-          onClick={() => (state.phase === 'result' ? onExit() : setConfirmingExit(true))}
-        >
-          <CrossIcon />
-        </Button>
-        <div className="min-w-0 flex-1 pe-2">
-          <ProgressBar value={lessonProgress(state)} label={t('lesson.progress')} />
-        </div>
-      </header>
-
-      <main className="flex-1 px-4 pb-4">
-        {state.phase === 'intro' && <LessonIntro lesson={lesson} />}
-
-        {exercise !== undefined && (
-          <section
-            aria-label={tp('lesson.exercise.counter', { n: state.index + 1, total: state.total })}
-            className="py-4"
+    <div className="app-shell">
+      <div className="app-column">
+        <header className="flex items-center gap-2 px-2 py-2">
+          <Button
+            variant="ghost"
+            aria-label={t('lesson.exit')}
+            onClick={() => (state.phase === 'result' ? onExit() : setConfirmingExit(true))}
           >
-            <p className="m-0 mb-3 label-caps">
-              {tp('lesson.exercise.counter', { n: state.index + 1, total: state.total })}
-            </p>
-            {kit !== null ? (
-              kit.render({ response, locked, onRespond: setResponse })
-            ) : (
-              <div
-                role="note"
-                className="card flex flex-col items-start gap-3"
-                data-variant="raised"
-              >
-                <h2 className="m-0 font-display text-xl font-extrabold">
-                  {t('lesson.unsupported.title')}
-                </h2>
-                <p className="m-0 text-muted">{t('lesson.unsupported.description')}</p>
+            <CrossIcon />
+          </Button>
+          <div className="min-w-0 flex-1 pe-2">
+            <ProgressBar value={lessonProgress(state)} label={t('lesson.progress')} />
+          </div>
+        </header>
+
+        <main className="flex-1 px-4 pb-4 md:px-8">
+          {state.phase === 'intro' && <LessonIntro lesson={lesson} />}
+
+          {exercise !== undefined && (
+            <section
+              aria-label={tp('lesson.exercise.counter', { n: state.index + 1, total: state.total })}
+              className="py-4"
+            >
+              <p className="m-0 mb-3 label-caps">
+                {tp('lesson.exercise.counter', { n: state.index + 1, total: state.total })}
+              </p>
+              {kit !== null ? (
+                kit.render({ response, locked, onRespond: setResponse })
+              ) : (
+                <div
+                  role="note"
+                  className="card flex flex-col items-start gap-3"
+                  data-variant="raised"
+                >
+                  <h2 className="m-0 font-display text-xl font-extrabold">
+                    {t('lesson.unsupported.title')}
+                  </h2>
+                  <p className="m-0 text-muted">{t('lesson.unsupported.description')}</p>
+                </div>
+              )}
+            </section>
+          )}
+
+          {state.phase === 'result' && (
+            <LessonResult outcome={outcome} correct={correctCount(state)} total={state.total} />
+          )}
+        </main>
+
+        <footer
+          ref={footerRef}
+          className="lesson-footer"
+          data-feedback={locked ? (correct ? 'correct' : 'wrong') : undefined}
+        >
+          <div role="status" aria-live="polite">
+            {locked && exercise !== undefined && kit !== null && (
+              <div className="flex flex-col gap-1 pb-3">
+                <p
+                  className={`m-0 flex items-center gap-2 font-display text-xl font-extrabold ${correct ? 'text-success' : 'text-danger'}`}
+                >
+                  {correct ? <CheckIcon /> : <CrossIcon />}
+                  {correct ? t('lesson.feedback.correct') : t('lesson.feedback.wrong')}
+                </p>
+                {!correct && (
+                  <p className="m-0 font-bold">
+                    {tp('lesson.feedback.correctAnswer', { answer: kit.correctAnswerText() })}
+                  </p>
+                )}
+                <p className="m-0">{exercise.explanation}</p>
               </div>
             )}
-          </section>
-        )}
-
-        {state.phase === 'result' && (
-          <LessonResult outcome={outcome} correct={correctCount(state)} total={state.total} />
-        )}
-      </main>
-
-      <footer
-        ref={footerRef}
-        className="lesson-footer"
-        data-feedback={locked ? (correct ? 'correct' : 'wrong') : undefined}
-      >
-        <div role="status" aria-live="polite">
-          {locked && exercise !== undefined && kit !== null && (
-            <div className="flex flex-col gap-1 pb-3">
-              <p
-                className={`m-0 flex items-center gap-2 font-display text-xl font-extrabold ${correct ? 'text-success' : 'text-danger'}`}
-              >
-                {correct ? <CheckIcon /> : <CrossIcon />}
-                {correct ? t('lesson.feedback.correct') : t('lesson.feedback.wrong')}
-              </p>
-              {!correct && (
-                <p className="m-0 font-bold">
-                  {tp('lesson.feedback.correctAnswer', { answer: kit.correctAnswerText() })}
-                </p>
-              )}
-              <p className="m-0">{exercise.explanation}</p>
-            </div>
+          </div>
+          {state.phase === 'intro' ? (
+            <Button
+              fullWidth
+              onClick={() => {
+                startedAt.current = Date.now();
+                dispatch({ type: 'START' });
+              }}
+            >
+              {t('lesson.intro.start')}
+            </Button>
+          ) : state.phase === 'result' ? (
+            <Button fullWidth onClick={onExit}>
+              {t('lesson.result.back')}
+            </Button>
+          ) : kit === null && state.phase === 'exercise' ? (
+            <Button fullWidth onClick={() => dispatch({ type: 'SKIP' })}>
+              {t('lesson.unsupported.skip')}
+            </Button>
+          ) : state.phase === 'exercise' ? (
+            <Button fullWidth disabled={response === null} onClick={check}>
+              {t('lesson.check')}
+            </Button>
+          ) : (
+            <Button fullWidth onClick={next}>
+              {lastAnswered ? t('lesson.finish') : t('lesson.continue')}
+            </Button>
           )}
-        </div>
-        {state.phase === 'intro' ? (
-          <Button
-            fullWidth
-            onClick={() => {
-              startedAt.current = Date.now();
-              dispatch({ type: 'START' });
-            }}
-          >
-            {t('lesson.intro.start')}
-          </Button>
-        ) : state.phase === 'result' ? (
-          <Button fullWidth onClick={onExit}>
-            {t('lesson.result.back')}
-          </Button>
-        ) : kit === null && state.phase === 'exercise' ? (
-          <Button fullWidth onClick={() => dispatch({ type: 'SKIP' })}>
-            {t('lesson.unsupported.skip')}
-          </Button>
-        ) : state.phase === 'exercise' ? (
-          <Button fullWidth disabled={response === null} onClick={check}>
-            {t('lesson.check')}
-          </Button>
-        ) : (
-          <Button fullWidth onClick={next}>
-            {lastAnswered ? t('lesson.finish') : t('lesson.continue')}
-          </Button>
-        )}
-      </footer>
+        </footer>
 
-      {confirmingExit && <ExitDialog onStay={() => setConfirmingExit(false)} onLeave={onExit} />}
+        {confirmingExit && <ExitDialog onStay={() => setConfirmingExit(false)} onLeave={onExit} />}
+      </div>
     </div>
   );
 }

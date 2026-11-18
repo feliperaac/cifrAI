@@ -34,7 +34,10 @@ export interface LessonResultProps {
 
 export function LessonResult({ outcome, correct, total }: LessonResultProps) {
   return (
-    <section aria-labelledby="result-title" className="flex flex-col items-start gap-4 py-4">
+    <section
+      aria-labelledby="result-title"
+      className="flex flex-col items-start gap-4 py-6 md:py-10"
+    >
       <h1 id="result-title" className="m-0 font-display text-3xl font-extrabold" tabIndex={-1}>
         {t('lesson.result.title')}
       </h1>

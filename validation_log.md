@@ -385,3 +385,14 @@
 
 ### VL-0022 / VL-0023 / VL-0024 — adendo de verificação do usuário (2026-11-15)
 - **F1-04, F1-17 e F1-18:** o usuário testou no navegador e respondeu "tudo certo… fora isso tá ok". Confirmou som dos acordes, pontos (XP) e a trilha. Ressalvas: (1) um exercício "não aparece e pula para outro": é o `build_chord` da fixture, tipo ainda sem renderizador (F1-05), que cai no fallback "ainda não disponível" com "Pular exercício" (comportamento previsto, não bug); (2) falta som ao acertar/errar (nova tarefa F1-19).
+
+---
+
+## VL-0025 — F1-20 Shell responsivo, ADR-0003 (PARCIAL: sem verificação visual)
+- **Data:** 2026-11-17 (fuso de referência: America/Rio_Branco)
+- **Tarefa:** F1-20
+- **Agente:** frontend-ui (reverificado pelo agente principal); decisão: `gemini-architect` com segunda opinião do Gemini (ADR-0003, aceito)
+- **Escopo validado:** token `--color-page` (claro `#ebdfc7`, escuro `#0e0a07`) e `.app-column` (640 px, borda lateral a partir de `md`); menu inferior limitado à coluna; a partir de `lg` o MESMO `<nav>` vira barra lateral com o Wordmark (um único landmark navigation, `aria-current`, safe-area esquerda); DOM: skip link, nav, main; player em coluna centrada sem nav; diálogo de saída centralizado em `md+`; Home/Perfil/galeria (`data-wide`) em grades adaptativas
+- **Comando executado (agente principal):** `pnpm validate` completo OK (format, lint, typecheck, test, content:validate, web build, docker dev e prod). Testes web 161, content 36; JS inicial 122,6 kB gzip, CSS 5,9 kB gzip. Contrastes do `--color-page` calculados pelo agente (claro: texto 13,32, muted 6,28, primária 5,06, borda 3,96, foco 5,72; escuro: 16,97, 10,05, 8,49, 5,91, 9,87).
+- **NÃO VERIFICADO:** aparência em 360×640, 768×1024 e 1280×800, claro e escuro (sem Chromium na VM e extensão do Chrome desconectada: sem capturas); barra lateral, item ativo, Wordmark fixo sobre a barra, abertura "Afinação" com barra lateral, galeria alargada (`:has`), diálogo; troca por breakpoint só será testável no E2E (F1-12, desktop 1280×800); `--color-page` ainda não registrado em `contraste.mjs`/`identidade-visual.md`
+- **Pendências:** usuário confere no navegador em várias larguras; registrar `--color-page` na documentação de design; critério "funciona em 360/768/1280" entra na F1-09, F1-12 e F4-03 (ver ADR-0003)

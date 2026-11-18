@@ -10,22 +10,11 @@ const items: { to: string; label: MessageKey; icon: () => React.JSX.Element }[] 
 
 export function BottomNav() {
   return (
-    <nav
-      aria-label={t('nav.label')}
-      className="fixed inset-x-0 bottom-0 border-t border-border bg-bg pb-[env(safe-area-inset-bottom)]"
-    >
-      <ul className="mx-auto flex max-w-md">
+    <nav aria-label={t('nav.label')} className="app-nav">
+      <ul className="app-nav__list">
         {items.map(({ to, label, icon: Icon }) => (
-          <li key={to} className="flex-1">
-            <NavLink
-              to={to}
-              end={to === '/'}
-              className={({ isActive }) =>
-                `flex min-h-14 flex-col items-center justify-center gap-0.5 text-xs font-medium ${
-                  isActive ? 'text-primary underline underline-offset-4' : 'text-muted'
-                }`
-              }
-            >
+          <li key={to} className="app-nav__item">
+            <NavLink to={to} end={to === '/'} className="app-nav__link">
               <Icon />
               <span>{t(label)}</span>
             </NavLink>

@@ -31,6 +31,7 @@
 ## F1 — Núcleo do produto (MVP sem áudio)
 - [x] F1-01 `pedagogy-content` Schema Zod de lição/exercício em `packages/content` + validador (`content:validate`). ADR-0002: o catálogo deve expor XP por lição, número de exercícios e estado "aposentado" (VL-0017)
 - [x] F1-02 `frontend-ui` Componente `ChordDiagram` (SVG, suporte a canhoto, pestana, X/O) (VL-0018, verificado pelo usuário)
+- [ ] F1-20 `frontend-ui` Shell responsivo (ADR-0003): fundo de página e superfície de coluna; menu inferior vira barra lateral em `lg` com um único `<nav>`; player continua coluna centrada; aceite em 360×640, 768×1024 e 1280×800 (capturas); ordem de Tab e `aria-current`. Pedido do usuário em 2026-11-17. Precede F1-09
 - [ ] F1-19 `audio-dsp` + `frontend-ui` Sons de feedback ao acertar e ao errar no player (curtos, agradáveis, sintetizados, sem punir; respeitar mudo/preferência e `prefers-reduced-motion` não se aplica a áudio, mas oferecer chave de som). Pedido do usuário em 2026-11-15
 - [ ] F1-03 `frontend-ui` Componente `Fretboard` interativo (tocar casas para montar acorde)
 - [x] F1-16 `frontend-ui` Identidade visual e design system: paleta própria em CSS vars (claro/escuro, contraste forte), tipografia marcante, escala de espaçamento/raio/sombra, UMA abertura de página coreografada, primeiros blocos reutilizáveis (botão, card, barra de progresso, selo de XP). Diretriz do usuário em 2026-11-15 (.claude/agents/frontend-ui.md, "Direção visual"). Precede F1-04 e F1-09; começa depois da F1-14 (VL-0021, aprovado pelo usuário, ícones PWA regerados)

@@ -435,3 +435,6 @@
 - **Comando executado (agente principal):** `pnpm validate` completo OK. Testes: web 211, content 41, shared 55, api 14; JS principal 127,68 kB gzip; chunk `feedbackSounds` 0,84 kB gzip sob demanda. Testes de síntese: pico, duração, sem clique, frequência dominante por DFT em 44,1 e 48 kHz.
 - **NÃO VERIFICADO:** audição real (timbre, volume relativo ao acorde, fade do acorde), iOS/Safari e Android/WebView (interruptor de mudo), latência real clique→som, primeiro som paga o download do chunk
 - **Pendências:** o usuário ouve em `/licao/u99.l01` (acerto, erro, conclusão) e testa a chave em Perfil; ajuste fino pelos parâmetros em `feedbackSounds.ts`
+
+### VL-0027 — adendo de verificação do usuário (2026-11-17)
+- O usuário ouviu os sons de acerto, erro e conclusão no player e respondeu "tudo ótimo". Fecha a pendência de audição do timbre. iOS/Android, mudo do iOS e latência em aparelho seguem para a F4-03.

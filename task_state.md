@@ -5,7 +5,7 @@
 
 **Última atualização:** 2026-11-15
 **Fase atual:** F1 — Núcleo do produto (F0 concluída)
-**Próxima tarefa:** F1-19 (sons de feedback), depois F1-09, F1-03. F1-15 só com go-ahead do usuário
+**Próxima tarefa:** F1-09 (trilha, perfil, meta diária, streak), depois F1-03. F1-15 só com go-ahead do usuário
 **Ambiente:** VM dev (Oracle 19c local) · VM prod: ainda não provisionada
 
 ## Regras de uso
@@ -32,7 +32,7 @@
 - [x] F1-01 `pedagogy-content` Schema Zod de lição/exercício em `packages/content` + validador (`content:validate`). ADR-0002: o catálogo deve expor XP por lição, número de exercícios e estado "aposentado" (VL-0017)
 - [x] F1-02 `frontend-ui` Componente `ChordDiagram` (SVG, suporte a canhoto, pestana, X/O) (VL-0018, verificado pelo usuário)
 - [x] F1-20 `frontend-ui` Shell responsivo (ADR-0003): fundo de página e superfície de coluna; menu inferior vira barra lateral em `lg` com um único `<nav>`; player continua coluna centrada; aceite em 360×640, 768×1024 e 1280×800 (capturas); ordem de Tab e `aria-current`. Pedido do usuário em 2026-11-17. Precede F1-09 (VL-0025, verificado pelo usuário)
-- [~] F1-19 `audio-dsp` + `frontend-ui` Sons de feedback ao acertar e ao errar no player (curtos, agradáveis, sintetizados, sem punir; respeitar mudo/preferência e `prefers-reduced-motion` não se aplica a áudio, mas oferecer chave de som). Pedido do usuário em 2026-11-15 (VL-0027, aguarda audição do usuário)
+- [x] F1-19 `audio-dsp` + `frontend-ui` Sons de feedback ao acertar e ao errar no player (curtos, agradáveis, sintetizados, sem punir; respeitar mudo/preferência e `prefers-reduced-motion` não se aplica a áudio, mas oferecer chave de som). Pedido do usuário em 2026-11-15 (VL-0027, aprovado pelo usuário)
 - [ ] F1-03 `frontend-ui` Componente `Fretboard` interativo (tocar casas para montar acorde)
 - [x] F1-16 `frontend-ui` Identidade visual e design system: paleta própria em CSS vars (claro/escuro, contraste forte), tipografia marcante, escala de espaçamento/raio/sombra, UMA abertura de página coreografada, primeiros blocos reutilizáveis (botão, card, barra de progresso, selo de XP). Diretriz do usuário em 2026-11-15 (.claude/agents/frontend-ui.md, "Direção visual"). Precede F1-04 e F1-09; começa depois da F1-14 (VL-0021, aprovado pelo usuário, ícones PWA regerados)
 - [x] F1-17 `frontend-ui` Logo exclusiva do CifrAI: violão com a cifra (nomes de acorde) dando volta nele; arte original em SVG, legível em 16 px, claro/escuro; depois regerar ícones PWA, favicon e Wordmark. Pedido do usuário em 2026-11-15 (VL-0023, verificado pelo usuário)
@@ -100,7 +100,7 @@ _Nenhum._
 - **Ambiente:** stack dev no ar (`HTTP_PORT=8088 HTTPS_PORT=8443 docker compose -f compose.yaml -f compose.dev.yaml up -d`); web em `http://192.168.20.234:5173`, galeria em `/dev/acordes`. Portas 80/443 e os containers `arasuper-app` e `proxy-nginx` são do usuário: não tocar. Node local 20 (projeto exige 24: CI e Docker usam 24). pnpm em `~/.local/bin`.
 - **Segredos:** `.env` e `.mcp.json` são do usuário e ficam fora do git; nunca ler nem imprimir valores. Testar o CI sempre com o `.env.example`.
 - **Repositório:** `git@github.com:feliperaac/cifrAI.git` (público), branch `main`. Todo push de código dispara o CI e publica imagens no GHCR; commits só de `*.md` e `docs/**` não disparam.
-- **Em andamento (aguarda o usuário ouvir):** F1-19. Próxima: F1-09. Próximo VL: 0028.
+- **Em andamento:** nada. Próxima: F1-09. Próximo VL: 0028.
 - **Aguardam o usuário:** decisões de F1-01 (teto de XP 100, categorias de lição, XP por exercício, mínimo de exercícios), valores de XP de repetição (20%) e teto diário (500) propostos no ADR-0002, preferência de dedilhado (G 2-1-3 ou 3-2-4; A 1-2-3), se entra acorde com pestana (F/Bm).
 - **Próximas:** F1-05, F1-19, F1-09 (trilha/perfil/meta/streak), F1-03 (Fretboard), F1-15 (quizzes de acorde, parte do schema já feita na F1-18), F1-06/07/08 (auth, modelo, endpoints), F1-11 (outbox/sync sobre o `EventStore`).
 - **Memórias do projeto** em `~/.claude/projects/-home-felipe-projetos-pessoal-cifrai/memory/` (fuso Rio Branco, CI, stack no ar, referência Duolingo, direção de design).

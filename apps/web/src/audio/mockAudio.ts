@@ -49,8 +49,8 @@ export function createMockContext(initial: 'running' | 'suspended' = 'running') 
         buffer: null as unknown,
         onended: null as (() => void) | null,
         connectedGain: 1,
-        connect: (g: { gain: { value: number } }) => {
-          node.connectedGain = g.gain.value;
+        connect: (g: { gain?: { value: number } }) => {
+          node.connectedGain = g.gain?.value ?? 1;
         },
         disconnect: () => undefined,
         start: (at: number) => {

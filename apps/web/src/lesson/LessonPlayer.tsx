@@ -1,5 +1,7 @@
 import { useEffect, useReducer, useRef, useState } from 'react';
 import type { Lesson } from '@cifrai/content';
+import { playFeedback } from '../audio/playFeedback';
+import { retainAudio } from '../audio/session';
 import { Button } from '../components/ui/Button';
 import { CheckIcon } from '../components/ui/CheckIcon';
 import { CrossIcon } from '../components/ui/CrossIcon';
@@ -39,6 +41,8 @@ export function LessonPlayer({ lesson, onExit }: LessonPlayerProps) {
   const locked = state.phase === 'feedback';
   const correct = locked ? state.answers[state.answers.length - 1] === true : false;
 
+  useEffect(() => retainAudio(), []);
+
   useEffect(() => {
     if (state.phase === 'feedback') footerRef.current?.querySelector('button')?.focus();
   }, [state.phase]);
@@ -68,10 +72,14 @@ export function LessonPlayer({ lesson, onExit }: LessonPlayerProps) {
 
   function check() {
     if (kit === null || response === null) return;
-    dispatch({ type: 'ANSWER', correct: kit.evaluate(response) });
+    const isCorrect = kit.evaluate(response);
+    // practice_timer nunca soa como erro; o clique em "Verificar" é o gesto que libera o áudio.
+    playFeedback(isCorrect || exercise?.type === 'practice_timer' ? 'correct' : 'wrong');
+    dispatch({ type: 'ANSWER', correct: isCorrect });
   }
 
   function next() {
+    if (state.phase === 'feedback' && state.index + 1 >= state.total) playFeedback('complete');
     dispatch({ type: 'CONTINUE' });
     setResponse(null);
   }

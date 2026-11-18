@@ -1,5 +1,6 @@
 import type { ChordFrets } from './chordNotes';
 import type { AudioEngine, StrumOptions } from './engine';
+import type { FeedbackKind } from './feedbackSounds';
 
 export type AudioFailure = 'unsupported' | 'suspended' | 'failed';
 
@@ -49,14 +50,7 @@ export function disposeAudio(): void {
   void closing?.close().catch(() => undefined);
 }
 
-/**
- * Deve ser chamada SINCRONAMENTE dentro do handler de clique/toque: o AudioContext é criado e
- * retomado antes de qualquer `await` (autoplay/iOS). Nunca toca sozinho.
- */
-export async function playChordFromGesture(
-  chord: ChordFrets,
-  options?: StrumOptions,
-): Promise<void> {
+function acquireContext(): { context: AudioContext; resumed: Promise<void> } {
   const Ctor = contextConstructor();
   if (Ctor === undefined) throw new AudioError('unsupported');
   if (ctx === null || ctx.state === 'closed') {
@@ -68,7 +62,18 @@ export async function playChordFromGesture(
     enginePromise = null;
   }
   const context = ctx;
-  const resumed = context.state === 'running' ? Promise.resolve() : context.resume();
+  return { context, resumed: context.state === 'running' ? Promise.resolve() : context.resume() };
+}
+
+/**
+ * Deve ser chamada SINCRONAMENTE dentro do handler de clique/toque: o AudioContext é criado e
+ * retomado antes de qualquer `await` (autoplay/iOS). Nunca toca sozinho.
+ */
+export async function playChordFromGesture(
+  chord: ChordFrets,
+  options?: StrumOptions,
+): Promise<void> {
+  const { context, resumed } = acquireContext();
   enginePromise ??= preloadEngineModule().then((m) => m.createWebAudioEngine(context));
   try {
     const [engine] = await Promise.all([enginePromise, resumed]);
@@ -77,6 +82,25 @@ export async function playChordFromGesture(
   } catch (error) {
     if (error instanceof AudioError) throw error;
     enginePromise = null;
+    throw new AudioError('failed');
+  }
+}
+
+/**
+ * Som de feedback da lição (síntese em chunk próprio). Mesmas regras de gesto de
+ * `playChordFromGesture`; silencia o acorde em execução para não sobrepor. Não toca se o
+ * contexto não ficar liberado.
+ */
+export async function playFeedbackFromGesture(kind: FeedbackKind): Promise<void> {
+  const { context, resumed } = acquireContext();
+  const loading = import('./feedbackSounds');
+  try {
+    const [module] = await Promise.all([loading, resumed]);
+    if (context.state !== 'running') throw new AudioError('suspended');
+    stopAudio();
+    module.playFeedbackSound(context, kind);
+  } catch (error) {
+    if (error instanceof AudioError) throw error;
     throw new AudioError('failed');
   }
 }

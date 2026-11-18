@@ -424,3 +424,14 @@
 
 ### VL-0026 — adendo de verificação do usuário (2026-11-17)
 - O usuário testou os 4 tipos de exercício, o exercício 10 com acordes e o `match_pairs` com diagrama e respondeu "testado, pode continuar". Fecha as pendências visuais, com a ressalva de que a confirmação foi geral, sem detalhe por item.
+
+---
+
+## VL-0027 — F1-19 Sons de feedback (PARCIAL: sem audição real)
+- **Data:** 2026-11-17 (fuso de referência: America/Rio_Branco)
+- **Tarefa:** F1-19
+- **Agente:** audio-dsp (reverificado pelo agente principal)
+- **Escopo validado:** síntese em `apps/web/src/audio/feedbackSounds.ts` (acerto Dó5→Sol5 390 ms pico 0,30; erro glissando Fá4→Ré4 300 ms pico 0,22; conclusão arpejo Dó5-Mi5-Sol5-Dó6 1,17 s); `playFeedback` que nunca lança; preferência "Sons de feedback" (`cifrai.feedbackSounds`, ligada por padrão) com chave no Perfil (`role="switch"`, ≥48 px); `playFeedbackFromGesture` no mesmo contexto de áudio por gesto, para o acorde em execução antes, não toca se o contexto não estiver liberado; integração no player (certo/errado no "Verificar", conclusão no "Ver resultado"; `practice_timer` sempre positivo)
+- **Comando executado (agente principal):** `pnpm validate` completo OK. Testes: web 211, content 41, shared 55, api 14; JS principal 127,68 kB gzip; chunk `feedbackSounds` 0,84 kB gzip sob demanda. Testes de síntese: pico, duração, sem clique, frequência dominante por DFT em 44,1 e 48 kHz.
+- **NÃO VERIFICADO:** audição real (timbre, volume relativo ao acorde, fade do acorde), iOS/Safari e Android/WebView (interruptor de mudo), latência real clique→som, primeiro som paga o download do chunk
+- **Pendências:** o usuário ouve em `/licao/u99.l01` (acerto, erro, conclusão) e testa a chave em Perfil; ajuste fino pelos parâmetros em `feedbackSounds.ts`

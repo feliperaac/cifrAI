@@ -145,7 +145,7 @@ function ChordCaption({ shape }: { shape: ChordShape }) {
   const { cifra, nomePt } = chordDisplayName(shape);
   return (
     <p
-      className="m-0 flex flex-wrap items-baseline justify-center min-h-[4.25rem] content-center gap-x-1.5 rounded-card bg-bg px-2 py-1 text-center font-display text-balance [overflow-wrap:anywhere]"
+      className="m-0 flex flex-wrap items-baseline justify-center min-h-12 content-center gap-x-1.5 rounded-card bg-bg px-2 py-1 text-center font-display text-balance [overflow-wrap:anywhere]"
       data-testid="chord-caption"
       aria-hidden="true"
     >
@@ -153,7 +153,7 @@ function ChordCaption({ shape }: { shape: ChordShape }) {
       {nomePt !== null && (
         <>
           {' '}
-          <span className="text-base leading-tight font-medium text-muted">{`(${nomePt})`}</span>
+          <span className="text-sm leading-tight font-medium text-muted">{`(${nomePt})`}</span>
         </>
       )}
     </p>
@@ -285,7 +285,7 @@ function ChordSvg({
 
         {highPosition && (
           <text
-            x={labelOnLeft ? GRID_LEFT - 10 : GRID_RIGHT + 10}
+            x={labelOnLeft ? GRID_LEFT - 11 : GRID_RIGHT + 11}
             y={fretCenterY(baseFret, baseFret) + 4}
             textAnchor={labelOnLeft ? 'end' : 'start'}
             fontSize={11}

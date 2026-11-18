@@ -1,8 +1,8 @@
 import type { ChordShape } from '@cifrai/shared';
 
-export const VIEW_WIDTH = 140;
-export const GRID_LEFT = 36;
-export const GRID_RIGHT = 116;
+export const VIEW_WIDTH = 116;
+export const GRID_LEFT = 30;
+export const GRID_RIGHT = 106;
 export const STRING_COUNT = 6;
 export const STRING_GAP = (GRID_RIGHT - GRID_LEFT) / (STRING_COUNT - 1);
 export const FRET_HEIGHT = 22;

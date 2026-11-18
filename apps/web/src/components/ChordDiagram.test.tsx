@@ -2,6 +2,7 @@ import { CHORD_CATALOG, chordDisplayName, getChord, type ChordShape } from '@cif
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { ChordDiagram, describeChord } from './ChordDiagram';
+import { DOT_RADIUS, GRID_LEFT, GRID_RIGHT, VIEW_WIDTH, stringX } from './chordGeometry';
 
 const chord = (id: string): ChordShape => {
   const found = getChord(id);
@@ -222,8 +223,8 @@ describe('ChordDiagram nome por extenso', () => {
     const svg = screen.getByTestId('chord-diagram');
     expect(svg.querySelector(':scope > text')?.textContent).toBe('G');
     expect(svg.getAttribute('viewBox')).not.toBe(heightWith);
-    expect(heightWith).toBe('0 0 140 124');
-    expect(svg.getAttribute('viewBox')).toBe('0 0 140 148');
+    expect(heightWith).toBe('0 0 116 124');
+    expect(svg.getAttribute('viewBox')).toBe('0 0 116 148');
   });
 
   it('leitor de tela ouve o nome uma vez só (legenda é aria-hidden)', () => {
@@ -303,5 +304,23 @@ describe('ChordDiagram playable', () => {
     await user.keyboard(' ');
     expect(screen.getByRole('alert')).toBeInTheDocument();
     vi.unstubAllGlobals();
+  });
+});
+
+describe('geometria horizontal', () => {
+  it('a grade preenche a maior parte da largura e as margens comportam marcadores, pestana e casa inicial', () => {
+    expect((GRID_RIGHT - GRID_LEFT) / VIEW_WIDTH).toBeGreaterThan(0.6);
+    expect(GRID_LEFT).toBeGreaterThanOrEqual(30);
+    expect(VIEW_WIDTH - GRID_RIGHT).toBeGreaterThanOrEqual(DOT_RADIUS + 1.5);
+    for (const leftHanded of [false, true]) {
+      for (const c of CHORD_CATALOG) {
+        for (let s = 1; s <= 6; s += 1) {
+          const x = stringX(s, leftHanded);
+          expect(x - DOT_RADIUS - 0.75).toBeGreaterThanOrEqual(0);
+          expect(x + DOT_RADIUS + 0.75).toBeLessThanOrEqual(VIEW_WIDTH);
+        }
+        expect(c.id).toBeTruthy();
+      }
+    }
   });
 });

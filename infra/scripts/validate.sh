@@ -105,8 +105,11 @@ derrubar_stack() {
 }
 limpar_stub_db() {
   # O bind mount de arquivo cria um stub vazio (root) em apps/api/scripts; remover se vazio.
-  local stub="$RAIZ/apps/api/scripts/app-privileges.mjs"
-  if [ -e "$stub" ] && [ ! -s "$stub" ]; then rm -f "$stub" 2>/dev/null || true; fi
+  local nome stub
+  for nome in app-privileges progress-model; do
+    stub="$RAIZ/apps/api/scripts/$nome.mjs"
+    if [ -e "$stub" ] && [ ! -s "$stub" ]; then rm -f "$stub" 2>/dev/null || true; fi
+  done
 }
 ao_sair() {
   local codigo=$?
@@ -173,6 +176,11 @@ db_privilegios() {
     -v ./db/tests/app-privileges.mjs:/repo/apps/api/scripts/app-privileges.mjs:ro \
     api node scripts/app-privileges.mjs
 }
+db_progresso() {
+  "${COMPOSE_DEV[@]}" run --rm --no-deps \
+    -v ./db/tests/progress-model.mjs:/repo/apps/api/scripts/progress-model.mjs:ro \
+    api node scripts/progress-model.mjs
+}
 
 # ---------- pipeline ----------
 echo "CifrAI: validacao local (stack=$COM_STACK db=$COM_DB)"
@@ -222,6 +230,7 @@ if [ "$COM_DB" -eq 1 ] && [ "$FALHOU" -eq 0 ]; then
   if motivo="$(requisito_docker)"; then
     etapa "db flyway info/validate" db_flyway
     [ "$FALHOU" -ne 0 ] || etapa "db app-privileges" db_privilegios
+    [ "$FALHOU" -ne 0 ] || etapa "db progress-model" db_progresso
   else
     pular "db" "$motivo"
   fi

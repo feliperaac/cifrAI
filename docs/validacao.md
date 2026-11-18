@@ -27,6 +27,7 @@ Código de saída: `0` tudo ok; `1` alguma etapa falhou (o resumo diz qual); `2`
 | stack up / healthy / endpoints | api, web e proxy ficam `healthy` (timeout 180 s); `/api/health`, `/api/ready` (Oracle) e `/` respondem 200 via HTTPS |
 | db flyway info/validate       | Migrações aplicadas e íntegras (checksums) no Oracle real                                     |
 | db app-privileges             | `CIFRAI_APP` faz DML, constraints valem e DDL é negado (ORA-01031); tudo com rollback         |
+| db progress-model             | Modelo de progresso: privilégios mínimos, cascade, constraints, `executeMany`/`batchErrors`; tudo com rollback |
 
 ## Comportamentos importantes
 

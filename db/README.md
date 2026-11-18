@@ -33,7 +33,33 @@ O codigo SQL da API usa nomes nao qualificados (`FROM USERS`).
 
 ## Tabelas atuais
 `USERS` (PK `RAW(16)` via `SYS_GUID()`, e-mail unico e obrigatoriamente minusculo) e `APP_SETTINGS` (chave + JSON validado).
-Progresso/XP/streak ficam para F1-07.
+
+Modelo de progresso (F1-07, V005..V023, ADR-0002 item 8). Todas com FK `USER_ID -> USERS(ID) ON DELETE CASCADE`:
+
+| Tabela | PK | Grant ao `CIFRAI_APP` | Indices (alem da PK) |
+|---|---|---|---|
+| `PROGRESS_EVENTS` (log append-only) | `ID` | **`SELECT, INSERT`** | `IX_PROGRESS_EVENTS_USER_EFF (USER_ID, EFFECTIVE_TS)`, `..._USER_SUBJ (USER_ID, SUBJECT_KEY, EFFECTIVE_TS)`, `..._USER_DATE (USER_ID, LOCAL_DATE)`; `UQ_PROGRESS_EVENTS_SERVER_SEQ` |
+| `SYNC_DEVICES` | `(USER_ID, DEVICE_ID)` | `SELECT, INSERT, UPDATE, DELETE` | - |
+| `USER_PROGRESS_STATE` (linha de lock do sync) | `USER_ID` | `SELECT, INSERT, UPDATE, DELETE` | - |
+| `DAILY_ACTIVITY` | `(USER_ID, LOCAL_DATE)` | `SELECT, INSERT, UPDATE, DELETE` | - |
+| `LESSON_PROGRESS` | `(USER_ID, LESSON_ID)` | `SELECT, INSERT, UPDATE, DELETE` | - |
+| `REVIEW_CARDS` | `(USER_ID, CARD_ID)` | `SELECT, INSERT, UPDATE, DELETE` | `IX_REVIEW_CARDS_USER_DUE (USER_ID, DUE_AT)` |
+| `GUEST_CLAIMS` | `GUEST_ID` | `SELECT, INSERT, UPDATE, DELETE` | `IX_GUEST_CLAIMS_USER (USER_ID)` (FK) |
+
+Decisoes de modelagem (onde o ADR nao fixou):
+- Contadores das projecoes sao `NOT NULL DEFAULT 0` (`RULES_VERSION` default 1); `USER_PROGRESS_STATE.DAILY_GOAL_XP` default 0 (= sem meta definida; a API define a meta padrao do produto ao criar a linha).
+- Timestamps de auditoria (`RECEIVED_AT`, `FIRST_SEEN_AT`, `LAST_SYNC_AT`, `CLAIMED_AT`, `UPDATED_AT`) tem default UTC; o resto e informado pela API.
+- `SERVER_SEQ` e `GENERATED ALWAYS AS IDENTITY` + `UNIQUE`: a API nao pode informa-lo (ORA-32795). Pode haver buracos na sequencia (rollback/cache); serve para ordem, nao para contagem.
+- `PROGRESS_EVENTS.GUEST_ID` nao tem FK (o convidado nao existe no servidor). `DEVICE_ID` tambem nao (`SYNC_DEVICES` e criada depois do primeiro evento aceito).
+
+### Menor privilegio em `PROGRESS_EVENTS` e exclusao de conta
+O `CIFRAI_APP` so tem `SELECT, INSERT` em `PROGRESS_EVENTS`: nao ha `UPDATE` nem `DELETE` direto (ambos dao ORA-01031), entao o log e
+imutavel para a aplicacao. A exclusao de conta (LGPD) exige **somente `DELETE` em `USERS`**: o `ON DELETE CASCADE` e executado pelo
+motor com os direitos do dono do schema e nao exige privilegio do usuario sobre as tabelas filhas (provado em `progress-model.mjs`).
+Portanto a rotina de exclusao faz `DELETE FROM USERS WHERE ID = :id` (uma transacao) e nao precisa de nada alem disso. Se um dia for
+necessario apagar eventos sem apagar o usuario (ex.: arquivamento/retencao), isso exige uma migracao nova concedendo `DELETE` (ou um job
+com usuario proprio) e deve passar por revisao de seguranca.
+O cascade apaga linhas por `USER_ID`; em `PROGRESS_EVENTS` os indices `(USER_ID, ...)` evitam full scan.
 
 ## Testes
 ```
@@ -43,6 +69,18 @@ docker compose -f compose.yaml -f compose.dev.yaml run --rm --no-deps \
 ```
 Roda como `CIFRAI_APP`: DML ok, constraints, DDL negado (ORA-01031). Tudo com rollback. Requer imagem dev (`--build` se preciso). O mount cria um stub vazio em `apps/api/scripts/app-privileges.mjs` (root); `pnpm validate --db` o remove ao final. O WORKDIR da imagem dev e `/repo/apps/api`.
 Tudo isso em um comando: `pnpm validate --db`.
+
+Modelo de progresso (F1-07), mesmo padrao:
+```
+docker compose -f compose.yaml -f compose.dev.yaml run --rm --no-deps \
+  -v ./db/tests/progress-model.mjs:/repo/apps/api/scripts/progress-model.mjs:ro \
+  api node scripts/progress-model.mjs
+```
+Como `CIFRAI_APP`: privilegios por tabela (dicionario `ALL_TAB_PRIVS`), UPDATE/DELETE negados em `PROGRESS_EVENTS`, FKs `CASCADE`,
+CHECKs (JSON, `LATE`, `GOAL_MET`, `COUNTS_FOR_STREAK`), PK/FK/NOT NULL, `SERVER_SEQ` (UNIQUE + `GENERATED ALWAYS`),
+`executeMany` com `batchErrors: true` em thin mode, e `DELETE FROM USERS` apagando as 7 tabelas sem tocar em outro usuario.
+Tudo roda numa unica transacao que termina em `ROLLBACK` (usuarios de teste `f1-07-*@example.invalid`), e o fim confere que nao sobrou nada.
+Tambem roda dentro de `pnpm validate --db`.
 
 ## Recomecar do zero (somente dev, destrutivo)
 `flyway clean` vem desabilitado. Para limpar o schema `CIFRAI_MIG` inteiro:

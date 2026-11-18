@@ -40,7 +40,7 @@
 - [x] F1-18 `frontend-ui` Player com som e pontos locais: exercícios com `ChordDiagram` tocável (schema `multiple_choice` com `chordId`/`chordPresentation`) e XP local por evento `lesson.completed` (ADR-0002) com total na Home/Perfil/resultado. Feedback do usuário em 2026-11-15 (VL-0024, verificado pelo usuário)
 - [x] F1-05 `frontend-ui` Tipos de exercício: múltipla escolha, associar pares, ordenar, montar acorde, "praticou no violão?" (auto-avaliação) (VL-0026, verificado pelo usuário; schema estendido com chordIds no practice_timer e chordId nos pares do match_pairs)
 - [ ] F1-06 `backend-api` Auth (e-mail + senha com argon2, sessão por cookie httpOnly) e modo convidado
-- [ ] F1-07 `oracle-db` Modelo de progresso: usuários, progresso por lição, log de XP, streak, cartões de revisão. ADR-0002: provar `executeMany`+`batchErrors` em thin mode no 19c e `ON DELETE CASCADE`
+- [x] F1-07 `oracle-db` Modelo de progresso: usuários, progresso por lição, log de XP, streak, cartões de revisão. ADR-0002: provar `executeMany`+`batchErrors` em thin mode no 19c e `ON DELETE CASCADE` (VL-0029; migrações V005..V023 aplicadas no Oracle de dev; verificação do zero pendente de autorização)
 - [ ] F1-08 `backend-api` Endpoints: currículo, progresso, XP, streak, meta diária
 - [~] F1-09 `frontend-ui` Trilha de unidades (mapa estilo Duolingo), perfil, meta diária, streak (VL-0028, aguarda verificação visual do usuário)
 - [ ] F1-10 `backend-api` Revisão espaçada (SM-2 simplificado) para cifras e acordes
@@ -100,7 +100,7 @@ _Nenhum._
 - **Ambiente:** stack dev no ar (`HTTP_PORT=8088 HTTPS_PORT=8443 docker compose -f compose.yaml -f compose.dev.yaml up -d`); web em `http://192.168.20.234:5173`, galeria em `/dev/acordes`. Portas 80/443 e os containers `arasuper-app` e `proxy-nginx` são do usuário: não tocar. Node local 20 (projeto exige 24: CI e Docker usam 24). pnpm em `~/.local/bin`.
 - **Segredos:** `.env` e `.mcp.json` são do usuário e ficam fora do git; nunca ler nem imprimir valores. Testar o CI sempre com o `.env.example`.
 - **Repositório:** `git@github.com:feliperaac/cifrAI.git` (público), branch `main`. Todo push de código dispara o CI e publica imagens no GHCR; commits só de `*.md` e `docs/**` não disparam.
-- **Em andamento (aguarda o usuário):** F1-09 (trilha em /, perfil, meta e streak em 360, 768 e 1280 px). Próxima: F1-03. Próximo VL: 0029.
+- **Em andamento (aguarda o usuário):** F1-09 (trilha, perfil, meta e streak em 360, 768 e 1280 px). Próximas: F1-06, F1-08. Próximo VL: 0030.
 - **Aguardam o usuário:** decisões de F1-01 (teto de XP 100, categorias de lição, XP por exercício, mínimo de exercícios), valores de XP de repetição (20%) e teto diário (500) propostos no ADR-0002, preferência de dedilhado (G 2-1-3 ou 3-2-4; A 1-2-3), se entra acorde com pestana (F/Bm).
 - **Próximas:** F1-05, F1-19, F1-09 (trilha/perfil/meta/streak), F1-03 (Fretboard), F1-15 (quizzes de acorde, parte do schema já feita na F1-18), F1-06/07/08 (auth, modelo, endpoints), F1-11 (outbox/sync sobre o `EventStore`).
 - **Memórias do projeto** em `~/.claude/projects/-home-felipe-projetos-pessoal-cifrai/memory/` (fuso Rio Branco, CI, stack no ar, referência Duolingo, direção de design).

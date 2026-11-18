@@ -5,7 +5,7 @@
 
 **Última atualização:** 2026-11-15
 **Fase atual:** F1 — Núcleo do produto (F0 concluída)
-**Próxima tarefa:** F1-05 (tipos de exercício; resolve o `build_chord` que hoje cai no fallback) e F1-19 (sons de feedback), depois F1-09, F1-03. F1-15 só com go-ahead do usuário
+**Próxima tarefa:** F1-19 (sons de feedback), depois F1-09, F1-03. F1-15 só com go-ahead do usuário
 **Ambiente:** VM dev (Oracle 19c local) · VM prod: ainda não provisionada
 
 ## Regras de uso
@@ -38,7 +38,7 @@
 - [x] F1-17 `frontend-ui` Logo exclusiva do CifrAI: violão com a cifra (nomes de acorde) dando volta nele; arte original em SVG, legível em 16 px, claro/escuro; depois regerar ícones PWA, favicon e Wordmark. Pedido do usuário em 2026-11-15 (VL-0023, verificado pelo usuário)
 - [x] F1-04 `frontend-ui` Player de lição: máquina de estados, feedback, barra de progresso, tela de resultado (XP) (VL-0022, verificado pelo usuário)
 - [x] F1-18 `frontend-ui` Player com som e pontos locais: exercícios com `ChordDiagram` tocável (schema `multiple_choice` com `chordId`/`chordPresentation`) e XP local por evento `lesson.completed` (ADR-0002) com total na Home/Perfil/resultado. Feedback do usuário em 2026-11-15 (VL-0024, verificado pelo usuário)
-- [~] F1-05 `frontend-ui` Tipos de exercício: múltipla escolha, associar pares, ordenar, montar acorde, "praticou no violão?" (auto-avaliação) (VL-0026, aguarda verificação do usuário em /licao/u99.l01)
+- [x] F1-05 `frontend-ui` Tipos de exercício: múltipla escolha, associar pares, ordenar, montar acorde, "praticou no violão?" (auto-avaliação) (VL-0026, verificado pelo usuário; schema estendido com chordIds no practice_timer e chordId nos pares do match_pairs)
 - [ ] F1-06 `backend-api` Auth (e-mail + senha com argon2, sessão por cookie httpOnly) e modo convidado
 - [ ] F1-07 `oracle-db` Modelo de progresso: usuários, progresso por lição, log de XP, streak, cartões de revisão. ADR-0002: provar `executeMany`+`batchErrors` em thin mode no 19c e `ON DELETE CASCADE`
 - [ ] F1-08 `backend-api` Endpoints: currículo, progresso, XP, streak, meta diária
@@ -100,7 +100,7 @@ _Nenhum._
 - **Ambiente:** stack dev no ar (`HTTP_PORT=8088 HTTPS_PORT=8443 docker compose -f compose.yaml -f compose.dev.yaml up -d`); web em `http://192.168.20.234:5173`, galeria em `/dev/acordes`. Portas 80/443 e os containers `arasuper-app` e `proxy-nginx` são do usuário: não tocar. Node local 20 (projeto exige 24: CI e Docker usam 24). pnpm em `~/.local/bin`.
 - **Segredos:** `.env` e `.mcp.json` são do usuário e ficam fora do git; nunca ler nem imprimir valores. Testar o CI sempre com o `.env.example`.
 - **Repositório:** `git@github.com:feliperaac/cifrAI.git` (público), branch `main`. Todo push de código dispara o CI e publica imagens no GHCR; commits só de `*.md` e `docs/**` não disparam.
-- **Em andamento (aguarda o usuário):** F1-05 (testar os 4 tipos em /licao/u99.l01). Próxima: F1-19. Próximo VL: 0027.
+- **Em andamento:** F1-19 (sons de acerto e erro). Próxima: F1-09. Próximo VL: 0027.
 - **Aguardam o usuário:** decisões de F1-01 (teto de XP 100, categorias de lição, XP por exercício, mínimo de exercícios), valores de XP de repetição (20%) e teto diário (500) propostos no ADR-0002, preferência de dedilhado (G 2-1-3 ou 3-2-4; A 1-2-3), se entra acorde com pestana (F/Bm).
 - **Próximas:** F1-05, F1-19, F1-09 (trilha/perfil/meta/streak), F1-03 (Fretboard), F1-15 (quizzes de acorde, parte do schema já feita na F1-18), F1-06/07/08 (auth, modelo, endpoints), F1-11 (outbox/sync sobre o `EventStore`).
 - **Memórias do projeto** em `~/.claude/projects/-home-felipe-projetos-pessoal-cifrai/memory/` (fuso Rio Branco, CI, stack no ar, referência Duolingo, direção de design).

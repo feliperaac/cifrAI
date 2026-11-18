@@ -421,3 +421,6 @@
 - **UI:** `PracticeTimerView` mostra "Acordes para treinar" (diagramas tocáveis, nome por extenso); `MatchPairsView` mostra o diagrama (nome escondido, aria "Diagrama N", sem vazar o nome antes da verificação; diagrama não tocável dentro do botão). Fixture: e10 com Em e Am; novo `u99.l01.e11` diagrama ↔ nome (Em, Am, C); `exerciseCount` 11.
 - **Comando executado (agente principal):** `pnpm validate` completo OK. Testes: web 194, content 41, shared 55, api 14; JS inicial 127,25 kB gzip.
 - **NÃO VERIFICADO:** visual em 360 e 1280 px (grade do timer com 4 diagramas; match com 6 acordes ≈160 px por coluna), leitor de tela real; no feedback aparecem "C (Dó)" e "C (Dó maior)" juntos (rótulos diferentes, pendência de padronização)
+
+### VL-0026 — adendo de verificação do usuário (2026-11-17)
+- O usuário testou os 4 tipos de exercício, o exercício 10 com acordes e o `match_pairs` com diagrama e respondeu "testado, pode continuar". Fecha as pendências visuais, com a ressalva de que a confirmação foi geral, sem detalhe por item.

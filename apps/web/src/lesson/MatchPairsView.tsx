@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react';
 import type { MatchPairsExercise } from '@cifrai/content';
 import { t, tp } from '../i18n';
+import { ChordDiagram } from '../components/ChordDiagram';
 import { CheckIcon } from '../components/ui/CheckIcon';
 import { CrossIcon } from '../components/ui/CrossIcon';
+import { pairSideText } from './exerciseLogic';
 import { shuffledIndices } from './shuffle';
 
 export interface MatchPairsViewProps {
@@ -31,6 +33,16 @@ export function MatchPairsView({ exercise, locked, onRespond }: MatchPairsViewPr
   const [pending, setPending] = useState<Pending | null>(null);
   const [status, setStatus] = useState('');
 
+  /** Rótulo de um item. Item com diagrama só ganha o nome depois de verificar (o nome é a resposta). */
+  function labelOf(side: Side, index: number): string {
+    const pair = exercise.pairs[index];
+    if (pair === undefined) return '';
+    const isChord = (side === 'left' ? pair.leftChordId : pair.rightChordId) !== undefined;
+    if (!isChord || locked) return pairSideText(pair, side);
+    const position = side === 'left' ? index : rightOrder.indexOf(index);
+    return tp('lesson.pairs.diagramN', { n: position + 1 });
+  }
+
   function commit(next: number[], message: string) {
     setLinks(next);
     setStatus(message);
@@ -48,9 +60,7 @@ export function MatchPairsView({ exercise, locked, onRespond }: MatchPairsViewPr
     }
     if (pending === null || pending.side === side) {
       setPending({ side, index });
-      const text =
-        (side === 'left' ? exercise.pairs[index]?.left : exercise.pairs[index]?.right) ?? '';
-      setStatus(tp('lesson.pairs.status.selected', { text }));
+      setStatus(tp('lesson.pairs.status.selected', { text: labelOf(side, index) }));
       return;
     }
     const left = side === 'left' ? index : pending.index;
@@ -61,8 +71,8 @@ export function MatchPairsView({ exercise, locked, onRespond }: MatchPairsViewPr
     commit(
       next,
       tp('lesson.pairs.status.paired', {
-        left: exercise.pairs[left]?.left ?? '',
-        right: exercise.pairs[right]?.right ?? '',
+        left: labelOf('left', left),
+        right: labelOf('right', right),
         n: number,
       }),
     );
@@ -73,17 +83,30 @@ export function MatchPairsView({ exercise, locked, onRespond }: MatchPairsViewPr
   function renderItem(side: Side, index: number) {
     const pair = exercise.pairs[index];
     if (pair === undefined) return null;
-    const text = side === 'left' ? pair.left : pair.right;
+    const chordId = side === 'left' ? pair.leftChordId : pair.rightChordId;
+    const text = labelOf(side, index);
     const leftOfItem = side === 'left' ? index : links.indexOf(index);
     const linked = leftOfItem >= 0 && (links[leftOfItem] ?? -1) >= 0;
     const isPending = pending?.side === side && pending.index === index;
     const rightCorrect = linked && links[leftOfItem] === leftOfItem;
     const verdict = locked && linked ? (rightCorrect ? 'correct' : 'wrong') : undefined;
+    const pairNumber = leftOfItem + 1;
+    const ariaLabel =
+      chordId === undefined
+        ? undefined
+        : [
+            text,
+            linked ? tp('lesson.pairs.pairNumber', { n: pairNumber }) : null,
+            isPending ? t('lesson.pairs.selected') : null,
+          ]
+            .filter((part) => part !== null)
+            .join(', ');
     return (
       <li key={`${side}-${index}`} className="list-none">
         <button
           type="button"
           className="pair-item"
+          aria-label={ariaLabel}
           aria-pressed={isPending || linked}
           aria-disabled={locked || undefined}
           data-linked={linked}
@@ -92,7 +115,19 @@ export function MatchPairsView({ exercise, locked, onRespond }: MatchPairsViewPr
           data-testid={`pair-${side}-${index}`}
           onClick={() => pick(side, index)}
         >
-          <span className="min-w-0 flex-1">{text}</span>
+          {chordId === undefined ? (
+            <span className="min-w-0 flex-1">{text}</span>
+          ) : (
+            <span
+              className="flex min-w-0 flex-1 flex-col items-center gap-1"
+              data-testid="pair-chord"
+            >
+              <span className="block w-28 max-w-full">
+                <ChordDiagram chordId={chordId} hideName showFullName={false} />
+              </span>
+              {locked && <span className="text-center text-sm font-bold">{text}</span>}
+            </span>
+          )}
           {linked && (
             <span className="pair-item__badge">
               {tp('lesson.pairs.pairNumber', { n: leftOfItem + 1 })}

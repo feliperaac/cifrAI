@@ -5,8 +5,14 @@ import type { Exercise, Lesson } from '@cifrai/content';
 import { devLesson } from '../pages/dev/fixtureLessons';
 import { LessonPlayer } from './LessonPlayer';
 
-function lessonOf(type: Exercise['type'], extra: Partial<Lesson> = {}): Lesson {
-  const exercises = devLesson.exercises.filter((e) => e.type === type);
+function lessonOf(
+  type: Exercise['type'],
+  extra: Partial<Lesson> = {},
+  exerciseId?: string,
+): Lesson {
+  const exercises = devLesson.exercises.filter(
+    (e) => e.type === type && (exerciseId === undefined || e.id === exerciseId),
+  );
   return { ...devLesson, ...extra, exercises, exerciseCount: exercises.length };
 }
 
@@ -18,11 +24,58 @@ async function start(lesson: Lesson, user: ReturnType<typeof userEvent.setup>) {
 const pair = (side: 'left' | 'right', text: string) =>
   within(screen.getByRole('list', { name: side === 'left' ? 'Coluna 1' : 'Coluna 2' })).getByRole(
     'button',
-    { name: new RegExp(`^${text}`) },
+    { name: new RegExp(`^${text.replace(/[()]/g, '\\$&')}`) },
   );
 
+describe('match_pairs com diagrama', () => {
+  const lesson = lessonOf('match_pairs', {}, 'u99.l01.e11');
+  const diagrams = () =>
+    within(screen.getByRole('list', { name: 'Coluna 1' })).getAllByRole('button');
+
+  it('não vaza o nome antes de verificar e revela depois, com ícone + texto', async () => {
+    const user = userEvent.setup();
+    await start(lesson, user);
+    const items = diagrams();
+    expect(items).toHaveLength(3);
+    for (const [i, item] of items.entries()) {
+      expect(item).toHaveAttribute('aria-label', `Diagrama ${i + 1}`);
+      expect(item.querySelector('[data-testid="chord-caption"]')).toBeNull();
+      expect(item.textContent).not.toMatch(/Mi menor|Lá menor|Dó maior/);
+    }
+    // Liga na ordem errada: diagramas 1,2,3 aos nomes C, Em, Am.
+    const names = ['C (Dó maior)', 'Em (Mi menor)', 'Am (Lá menor)'];
+    for (const [i, name] of names.entries()) {
+      await user.click(items[i] as HTMLElement);
+      await user.click(pair('right', name));
+    }
+    await user.click(screen.getByRole('button', { name: 'Verificar' }));
+    expect(screen.getByText('Quase lá!')).toBeInTheDocument();
+    expect(screen.getAllByText('par errado').length).toBeGreaterThan(0);
+    expect(
+      screen.getByText(
+        'Resposta certa: Em (Mi menor) ↔ Em (Mi menor); Am (Lá menor) ↔ Am (Lá menor); C (Dó) ↔ C (Dó maior)',
+      ),
+    ).toBeInTheDocument();
+    expect(diagrams()[0]).toHaveAttribute('aria-label', expect.stringContaining('Em (Mi menor)'));
+  });
+
+  it('acerta ligando por teclado', async () => {
+    const user = userEvent.setup();
+    await start(lesson, user);
+    const names = ['Em (Mi menor)', 'Am (Lá menor)', 'C (Dó maior)'];
+    for (const [i, name] of names.entries()) {
+      (diagrams()[i] as HTMLElement).focus();
+      await user.keyboard('{Enter}');
+      pair('right', name).focus();
+      await user.keyboard('{Enter}');
+    }
+    await user.click(screen.getByRole('button', { name: 'Verificar' }));
+    expect(screen.getByText('Certo!')).toBeInTheDocument();
+  });
+});
+
 describe('match_pairs no player', () => {
-  const lesson = lessonOf('match_pairs');
+  const lesson = lessonOf('match_pairs', {}, 'u99.l01.e08');
 
   it('liga pares por toque, desfaz e acerta', async () => {
     const user = userEvent.setup();
@@ -211,6 +264,16 @@ describe('build_chord no player', () => {
 
 describe('practice_timer no player', () => {
   afterEach(() => vi.useRealTimers());
+
+  it('mostra os diagramas dos acordes para treinar, com nome, tocáveis', async () => {
+    const user = userEvent.setup();
+    await start(lessonOf('practice_timer'), user);
+    const section = screen.getByRole('region', { name: 'Acordes para treinar' });
+    expect(within(section).getAllByTestId('chord-diagram')).toHaveLength(2);
+    expect(within(section).getAllByTestId('chord-caption')).toHaveLength(2);
+    expect(within(section).getByRole('button', { name: /Em/ })).toBeInTheDocument();
+    expect(screen.getByRole('note')).toBeInTheDocument();
+  });
 
   it('mostra o aviso de segurança da lição, conta, pausa, retoma e termina', async () => {
     vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] });

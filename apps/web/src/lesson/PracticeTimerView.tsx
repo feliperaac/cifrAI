@@ -1,6 +1,7 @@
 import { useEffect, useReducer, useState } from 'react';
 import type { PracticeTimerExercise } from '@cifrai/content';
 import { t } from '../i18n';
+import { ChordDiagram } from '../components/ChordDiagram';
 import { Button } from '../components/ui/Button';
 import { createTimer, formatClock, timerReducer } from './practiceTimerLogic';
 
@@ -71,6 +72,18 @@ export function PracticeTimerView({
         <p className="m-0 mb-1 label-caps">{t('lesson.safety')}</p>
         <p className="m-0">{safetyNotice ?? t('lesson.timer.safetyDefault')}</p>
       </div>
+
+      {exercise.chordIds !== undefined && (
+        <section aria-label={t('lesson.timer.chordsLabel')} data-testid="timer-chords">
+          <ul className="m-0 grid grid-cols-2 gap-3 p-0 sm:grid-cols-[repeat(auto-fit,minmax(10rem,12rem))] sm:justify-center">
+            {exercise.chordIds.map((chordId) => (
+              <li key={chordId} className="list-none">
+                <ChordDiagram chordId={chordId} playable />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <div className="timer-face" data-status={timer.status}>
         <p

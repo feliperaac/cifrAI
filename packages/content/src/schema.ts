@@ -74,13 +74,21 @@ export const MultipleChoiceExerciseSchema = z.strictObject({
   chordPresentation: ChordPresentationSchema.optional(),
 });
 
+/**
+ * Cada lado do par é texto OU um acorde do catálogo: `left` xor `leftChordId`, `right` xor `rightChordId`.
+ * O lado com `*ChordId` é renderizado como diagrama SEM nome (o nome por extenso só aparece no feedback).
+ */
+export const MatchPairSchema = z.strictObject({
+  left: text(120).optional(),
+  leftChordId: ChordIdSchema.optional(),
+  right: text(120).optional(),
+  rightChordId: ChordIdSchema.optional(),
+});
+
 export const MatchPairsExerciseSchema = z.strictObject({
   ...exerciseBase,
   type: z.literal('match_pairs'),
-  pairs: z
-    .array(z.strictObject({ left: text(120), right: text(120) }))
-    .min(2)
-    .max(6),
+  pairs: z.array(MatchPairSchema).min(2).max(6),
 });
 
 export const OrderExerciseSchema = z.strictObject({
@@ -101,6 +109,8 @@ export const PracticeTimerExerciseSchema = z.strictObject({
   ...exerciseBase,
   type: z.literal('practice_timer'),
   durationSeconds: z.number().int().min(10).max(600),
+  /** Opcional: acordes do catálogo mostrados como diagramas (com nome) para o aluno treinar. */
+  chordIds: z.array(ChordIdSchema).min(1).max(4).optional(),
 });
 
 const normalize = (value: string): string => value.trim().toLowerCase();
@@ -113,6 +123,44 @@ function duplicates(values: string[]): string[] {
     seen.add(value);
   }
   return [...dup];
+}
+
+type Fail = (path: (string | number)[], message: string) => void;
+
+function checkMatchPairs(pairs: z.infer<typeof MatchPairSchema>[], fail: Fail) {
+  for (const side of ['left', 'right'] as const) {
+    const key = `${side}ChordId` as const;
+    const keys: string[] = [];
+    let chordSides = 0;
+    pairs.forEach((pair, index) => {
+      const hasText = pair[side] !== undefined;
+      const hasChord = pair[key] !== undefined;
+      if (hasText === hasChord) {
+        fail(['pairs', index], `Informe ${side} (texto) ou ${key} (acorde), um dos dois.`);
+        return;
+      }
+      if (hasChord) chordSides += 1;
+      keys.push(`${hasChord ? 'c:' : 't:'}${pair[hasChord ? key : side] ?? ''}`);
+    });
+    if (chordSides > 0 && chordSides < pairs.length) {
+      fail(
+        ['pairs'],
+        `A coluna ${side === 'left' ? 'da esquerda' : 'da direita'} mistura texto e acordes.`,
+      );
+    }
+    if (duplicates(keys).length > 0) {
+      fail(
+        ['pairs'],
+        `Há itens repetidos na coluna ${side === 'left' ? 'da esquerda' : 'da direita'}.`,
+      );
+    }
+  }
+  if (
+    pairs.some((pair) => pair.leftChordId !== undefined) &&
+    pairs.some((pair) => pair.rightChordId !== undefined)
+  ) {
+    fail(['pairs'], 'Só um lado pode ter diagramas (o outro lado é o nome ou texto).');
+  }
 }
 
 export const ExerciseSchema = z
@@ -139,13 +187,15 @@ export const ExerciseSchema = z
       if (exercise.chordPresentation !== undefined && exercise.chordId === undefined) {
         fail(['chordPresentation'], 'chordPresentation exige chordId.');
       }
+    } else if (exercise.type === 'practice_timer') {
+      if (
+        exercise.chordIds !== undefined &&
+        new Set(exercise.chordIds).size !== exercise.chordIds.length
+      ) {
+        fail(['chordIds'], 'Há acordes repetidos em chordIds.');
+      }
     } else if (exercise.type === 'match_pairs') {
-      if (duplicates(exercise.pairs.map((pair) => pair.left)).length > 0) {
-        fail(['pairs'], 'Há itens repetidos na coluna da esquerda.');
-      }
-      if (duplicates(exercise.pairs.map((pair) => pair.right)).length > 0) {
-        fail(['pairs'], 'Há itens repetidos na coluna da direita.');
-      }
+      checkMatchPairs(exercise.pairs, fail);
     } else if (exercise.type === 'order') {
       if (duplicates(exercise.items).length > 0)
         fail(['items'], 'Há itens repetidos na ordenação.');

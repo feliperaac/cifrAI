@@ -1,5 +1,5 @@
 import type { BuildChordExercise, MatchPairsExercise, OrderExercise } from '@cifrai/content';
-import { STRING_COUNT, getChord } from '@cifrai/shared';
+import { STRING_COUNT, chordDisplayName, getChord } from '@cifrai/shared';
 
 function isIntArray(value: unknown, length: number): value is number[] {
   return (
@@ -16,8 +16,22 @@ export function evaluateMatchPairs(exercise: MatchPairsExercise, response: unkno
   );
 }
 
+type MatchPair = MatchPairsExercise['pairs'][number];
+
+/** Texto do lado do par; no lado com diagrama usa o nome por extenso (só chamar depois de verificar). */
+export function pairSideText(pair: MatchPair, side: 'left' | 'right'): string {
+  const chordId = side === 'left' ? pair.leftChordId : pair.rightChordId;
+  if (chordId !== undefined) {
+    const shape = getChord(chordId);
+    return shape === undefined ? chordId : chordDisplayName(shape).rotulo;
+  }
+  return (side === 'left' ? pair.left : pair.right) ?? '';
+}
+
 export function matchPairsAnswerText(exercise: MatchPairsExercise): string {
-  return exercise.pairs.map((pair) => `${pair.left} ↔ ${pair.right}`).join('; ');
+  return exercise.pairs
+    .map((pair) => `${pairSideText(pair, 'left')} ↔ ${pairSideText(pair, 'right')}`)
+    .join('; ');
 }
 
 /** `response` = índices (no conteúdo) dos itens, na ordem em que o aluno os deixou. */

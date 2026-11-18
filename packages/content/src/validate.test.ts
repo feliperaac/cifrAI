@@ -175,6 +175,63 @@ describe('regras dos exercícios', () => {
       'direita',
     );
   });
+  const chordPairs = [
+    { leftChordId: 'em', right: 'Mi menor' },
+    { leftChordId: 'am', right: 'Lá menor' },
+  ];
+  it('match_pairs com diagrama de um lado passa; sem diagrama continua igual', () => {
+    expect(run(edited('lessons.0.exercises.1.pairs', chordPairs))).toEqual([]);
+  });
+  it('match_pairs: acorde inexistente no catálogo', () => {
+    const pairs = [{ ...chordPairs[0], leftChordId: 'zz9' }, chordPairs[1]];
+    expectIssue(
+      edited('lessons.0.exercises.1.pairs', pairs),
+      'lessons[0].exercises[1].pairs[0].leftChordId',
+      'não existe no catálogo',
+    );
+  });
+  it('match_pairs: lado com texto e acorde ao mesmo tempo, ou sem nenhum', () => {
+    expectIssue(
+      edited('lessons.0.exercises.1.pairs', [{ ...chordPairs[0], left: 'Em' }, chordPairs[1]]),
+      'lessons[0].exercises[1].pairs[0]',
+      'um dos dois',
+    );
+    expectIssue(
+      edited('lessons.0.exercises.1.pairs', [{ right: 'x' }, chordPairs[1]]),
+      'lessons[0].exercises[1].pairs[0]',
+      'um dos dois',
+    );
+  });
+  it('match_pairs: coluna mista, acordes repetidos e diagramas nos dois lados', () => {
+    expectIssue(
+      edited('lessons.0.exercises.1.pairs', [chordPairs[0], { left: 'Lá', right: 'Lá menor' }]),
+      'lessons[0].exercises[1].pairs',
+      'mistura',
+    );
+    expectIssue(
+      edited('lessons.0.exercises.1.pairs', [
+        chordPairs[0],
+        { ...chordPairs[1], leftChordId: 'em' },
+      ]),
+      'lessons[0].exercises[1].pairs',
+      'esquerda',
+    );
+    expectIssue(
+      edited('lessons.0.exercises.1.pairs', [
+        { leftChordId: 'em', rightChordId: 'am' },
+        { leftChordId: 'am', rightChordId: 'em' },
+      ]),
+      'lessons[0].exercises[1].pairs',
+      'Só um lado',
+    );
+  });
+  it('practice_timer com chordIds do catálogo passa; repetido, vazio ou inexistente falha', () => {
+    const path = 'lessons.1.exercises.1.chordIds';
+    expect(run(edited(path, ['em', 'am']))).toEqual([]);
+    expectIssue(edited(path, ['em', 'em']), 'lessons[1].exercises[1].chordIds', 'repetidos');
+    expectIssue(edited(path, ['zz9']), 'lessons[1].exercises[1].chordIds[0]', 'não existe');
+    expect(run(edited(path, [])).length).toBeGreaterThan(0);
+  });
   it('ordenação com itens repetidos', () => {
     expectIssue(
       edited('lessons.0.exercises.2.items', ['a', 'b', 'a']),

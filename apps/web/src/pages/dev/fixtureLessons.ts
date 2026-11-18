@@ -23,7 +23,7 @@ export const devLesson: Lesson = {
   category: 'concept',
   status: 'active',
   xp: 20,
-  exerciseCount: 10,
+  exerciseCount: 11,
   safetyNotice: 'Faça pausas curtas. Se sentir dor nos pulsos ou dedos, pare e descanse.',
   prerequisites: [],
   exercises: [
@@ -96,6 +96,17 @@ export const devLesson: Lesson = {
         'Na cifra, as notas viram letras: Lá = A, Si = B, Dó = C, Ré = D, Mi = E, Fá = F, Sol = G.',
     },
     {
+      id: 'u99.l01.e11',
+      type: 'match_pairs',
+      prompt: 'Ligue cada diagrama ao nome do acorde.',
+      pairs: [
+        { leftChordId: 'em', right: 'Em (Mi menor)' },
+        { leftChordId: 'am', right: 'Am (Lá menor)' },
+        { leftChordId: 'c', right: 'C (Dó maior)' },
+      ],
+      explanation: 'Em e Am são menores; o C (Dó maior) tem som mais aberto e brilhante.',
+    },
+    {
       id: 'u99.l01.e09',
       type: 'order',
       prompt: 'Coloque as cordas na ordem, da mais grave (6ª) para a mais aguda (1ª).',
@@ -106,6 +117,8 @@ export const devLesson: Lesson = {
       id: 'u99.l01.e10',
       type: 'practice_timer',
       prompt: 'Pratique no violão: troque entre Em e Am por 30 segundos.',
+      hint: 'Toque em um diagrama para ouvir o acorde. Troque devagar, de um para o outro.',
+      chordIds: ['em', 'am'],
       durationSeconds: 30,
       explanation:
         'Trocar de acorde devagar e sem tensão treina os dedos mais do que trocar rápido.',

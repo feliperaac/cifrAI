@@ -20,10 +20,10 @@ Campos da lição: `id`, `title`, `objective`, `category` (`concept|technique|ch
 Tipos de exercício (campo `type`; todos têm `id`, `prompt`, `explanation`, `hint` opcional):
 
 - `multiple_choice`: `options` (`{id, text}`) e `correctOptionId`. Opcionais (acorde que o aluno pode ouvir): `chordId` (do catálogo de `@cifrai/shared`) e `chordPresentation` (`diagram`, padrão: diagrama tocável com a cifra escondida até a resposta; `diagram_with_name`: nome sempre visível; `audio_only`: só o botão de ouvir, para "ouça e escolha"). `chordPresentation` exige `chordId`. Sem `chordId` o exercício é o de antes (retrocompatível).
-- `match_pairs`: `pairs` (`{left, right}`).
+- `match_pairs`: `pairs`. Cada lado é texto OU acorde: `left` xor `leftChordId`, `right` xor `rightChordId` (do catálogo de `@cifrai/shared`). O lado com `*ChordId` vira diagrama SEM nome (nome é a outra coluna) e não leva texto; o nome por extenso aparece só no feedback. Regras: só um lado do exercício pode ter diagramas, a coluna não mistura texto e acordes, sem repetição. Sem `*ChordId` é o formato de antes (retrocompatível).
 - `order`: `items` na ordem correta (a UI embaralha).
 - `build_chord`: `chordId` (ex.: `em`). O diagrama vem do catálogo de acordes em `@cifrai/shared` (`CHORD_CATALOG`), não daqui; o validador rejeita `chordId` que não esteja no catálogo.
-- `practice_timer`: `durationSeconds`. Auto-avaliação "Consegui / Preciso de mais prática".
+- `practice_timer`: `durationSeconds`. Opcional `chordIds` (1 a 4 acordes do catálogo, sem repetição): a UI mostra os diagramas com nome para o aluno treinar. Auto-avaliação "Consegui / Preciso de mais prática".
 
 ## Como criar uma lição
 
@@ -38,7 +38,7 @@ Tipos de exercício (campo `type`; todos têm `id`, `prompt`, `explanation`, `hi
 - `schemaVersion` = 1; campos desconhecidos são rejeitados (`.strict()`).
 - Nenhum texto vazio ou só espaços.
 - XP inteiro de 1 a 100; `exerciseCount` igual ao número de exercícios (1 a 20).
-- `build_chord` e `multiple_choice`: `chordId`, quando presente, existe no catálogo de acordes de `@cifrai/shared`; `chordPresentation` só com `chordId`.
+- `build_chord`, `multiple_choice`, `practice_timer.chordIds` e `match_pairs.*ChordId`: o acorde, quando presente, existe no catálogo de acordes de `@cifrai/shared`; `chordPresentation` só com `chordId`.
 - Resposta correta pertence às opções; opções, pares e itens de ordenação sem repetição.
 - Pré-requisito existe e vem antes da lição.
 - Direitos autorais: `source.kind` é `public-domain`, `folk` ou `original`; `folk` e `public-domain` exigem `source.reference` (onde você verificou). Chaves de letra (`lyrics`, `letra`...) são rejeitadas. Nunca inclua letra protegida.

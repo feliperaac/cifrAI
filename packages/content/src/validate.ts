@@ -98,6 +98,24 @@ function checkHierarchy(file: string, unit: Unit, issues: ContentIssue[]): void 
           `Acorde "${exercise.chordId}" não existe no catálogo de @cifrai/shared.`,
         );
       }
+      const extraChordIds =
+        exercise.type === 'practice_timer'
+          ? (exercise.chordIds ?? []).map((chordId, ci) => [`chordIds[${ci}]`, chordId] as const)
+          : exercise.type === 'match_pairs'
+            ? exercise.pairs.flatMap((pair, pi) =>
+                (['leftChordId', 'rightChordId'] as const).flatMap((key) =>
+                  pair[key] === undefined ? [] : [[`pairs[${pi}].${key}`, pair[key]] as const],
+                ),
+              )
+            : [];
+      for (const [path, chordId] of extraChordIds) {
+        if (!hasChord(chordId)) {
+          add(
+            `${lp}.exercises[${ei}].${path}`,
+            `Acorde "${chordId}" não existe no catálogo de @cifrai/shared.`,
+          );
+        }
+      }
       if (!exercise.id.startsWith(`${lesson.id}.`)) {
         add(
           `${lp}.exercises[${ei}].id`,

@@ -56,7 +56,7 @@
 - [ ] F2-03 `pedagogy-content` U2 Notas e cifras (A–G ↔ Lá–Sol, # e b, m, 7, mnemônicos)
 - [ ] F2-04 `pedagogy-content` U3 Mão esquerda: soltar os dedos (numeração, "aranha", pressão e posição perto do traste)
 - [ ] F2-05 `pedagogy-content` U4 Primeiros acordes (Em, Am, E, A, D) e trocas
-- [ ] F2-06 `pedagogy-content` U5 Mão direita: pulso e batidas básicas
+- [ ] F2-06 `pedagogy-content` U5 Mão direita: pulso e batidas básicas; incluir exercícios de pizzicato (palma abafando perto do cavalete), base Carlevaro/Tárrega
 - [ ] F2-07 `pedagogy-content` U6 Primeiras músicas fáceis (domínio público/folclore + progressões)
 - [ ] F2-08 `pedagogy-content` U7 Mais acordes (C, G, Dm, D7, G7) e leitura de cifra completa
 - [ ] F2-09 `pedagogy-content` U8 Dedilhado básico (p-i-m-a) e padrões iniciais

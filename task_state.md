@@ -3,7 +3,7 @@
 > Fonte da verdade do andamento. Leia antes de agir; atualize ao terminar.
 > Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` concluído (exige entrada no `validation_log.md`) · `[!]` bloqueado
 
-**Última atualização:** 2026-11-15
+**Última atualização:** 2026-11-17
 **Fase atual:** F1 — Núcleo do produto (F0 concluída)
 **Próxima tarefa:** F1-21 (endurecimento da autenticação), depois F1-08 (endpoints). F1-03 e F1-15 quando o usuário quiser
 **Ambiente:** VM dev (Oracle 19c local) · VM prod: ainda não provisionada
@@ -104,5 +104,7 @@ _Nenhum._
 - **Repositório:** `git@github.com:feliperaac/cifrAI.git` (público), branch `main`. Todo push de código dispara o CI e publica imagens no GHCR; commits só de `*.md` e `docs/**` não disparam.
 - **Em andamento (aguarda o usuário):** F1-09 (trilha, perfil, meta e streak em 360, 768 e 1280 px). Próxima: F1-21 (endurecimento da auth), depois F1-08. Próximo VL: 0031.
 - **Aguardam o usuário:** decisões de F1-01 (teto de XP 100, categorias de lição, XP por exercício, mínimo de exercícios), valores de XP de repetição (20%) e teto diário (500) propostos no ADR-0002, preferência de dedilhado (G 2-1-3 ou 3-2-4; A 1-2-3), se entra acorde com pestana (F/Bm).
-- **Próximas:** F1-05, F1-19, F1-09 (trilha/perfil/meta/streak), F1-03 (Fretboard), F1-15 (quizzes de acorde, parte do schema já feita na F1-18), F1-06/07/08 (auth, modelo, endpoints), F1-11 (outbox/sync sobre o `EventStore`).
+- **Próximas (ordem):** F1-21 (endurecimento da auth, antes da F1-08), F1-08 (endpoints currículo/progresso/sync), F1-10 (SM-2), F1-11 (outbox/sync sobre o `EventStore`), F1-03 (Fretboard; o `FretboardInput` da F1-05 já existe), F1-15 (quizzes de identificar acorde, só com go-ahead; parte do schema já feita), F1-12 (E2E Playwright com projetos mobile 360×640 e desktop 1280×800, ADR-0003). Depois F2 (conteúdo, base Carlevaro/Tárrega, pizzicato na F2-06), F3 (áudio), F4 (APK), F5 (produção, F5-06 LGPD/auth).
+- **Ferramentas:** `gh` 2.105 instalado e logado como `feliperaac` (issues no GitHub, rótulos de triagem criados; `docs/agents/*` e seção "Agent skills" no CLAUDE.md). Extensão do Chrome serve para conferir telas (a janela não redimensiona; usar DevTools do usuário para 360/768). Agentes não devem tocar no `.env`; `pnpm validate --stack` derruba a stack dev ao final (subir de novo: comando acima).
+- **Decisões do usuário nesta fase:** logo variante C; direção visual A "Cedro e Cobre"; web responsiva em um só código (ADR-0003); base pedagógica Carlevaro e Tárrega + pizzicato; `flyway clean` em dev autorizado uma vez (verificação do zero feita, VL-0029).
 - **Memórias do projeto** em `~/.claude/projects/-home-felipe-projetos-pessoal-cifrai/memory/` (fuso Rio Branco, CI, stack no ar, referência Duolingo, direção de design).

@@ -148,3 +148,17 @@ Regra de orquestração: o agente principal **planeja e integra**; subagentes ex
 - Marcar tarefa como concluída sem evidência.
 - Adicionar dependência sem justificar no PR/log (tamanho, licença, manutenção).
 - Instalar o app como "site embrulhado" sem funcionalidade offline/áudio: o valor está no PWA completo.
+
+## Agent skills
+
+### Issue tracker
+
+Issues e specs ficam no GitHub Issues de `feliperaac/cifrAI` (via CLI `gh`, ainda a instalar). O andamento do roadmap continua em `task_state.md`. Ver `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Vocabulário padrão: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. Ver `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `GLOSSARY.md` na raiz (criado sob demanda) e `docs/adr/`. Ver `docs/agents/domain.md`.

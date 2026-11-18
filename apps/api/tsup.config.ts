@@ -7,5 +7,7 @@ export default defineConfig({
   platform: 'node',
   outDir: 'dist',
   clean: true,
+  // O pacote shared e TypeScript puro (main: src/index.ts): precisa entrar no bundle.
+  noExternal: ['@cifrai/shared'],
   sourcemap: true,
 });

@@ -8,3 +8,4 @@ export * from './xp.js';
 export * from './dates.js';
 export * from './streak.js';
 export * from './daily-goal.js';
+export * from './auth.js';

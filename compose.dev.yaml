@@ -11,6 +11,8 @@ services:
     volumes:
       - ./apps:/repo/apps
       - ./packages:/repo/packages
+      # vitest/tsc do api resolvem `extends: ../../tsconfig.base.json`
+      - ./tsconfig.base.json:/repo/tsconfig.base.json:ro
       # preserva node_modules instalados na imagem
       - /repo/apps/api/node_modules
     ports:

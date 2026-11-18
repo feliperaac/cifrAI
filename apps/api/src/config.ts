@@ -14,7 +14,25 @@ const envSchema = z.object({
   ORACLE_SERVICE: z.string().min(1),
   ORACLE_USER: opt(z.string().default('CIFRAI_APP')),
   ORACLE_PASSWORD: z.string().min(1),
+  ORACLE_SCHEMA: opt(
+    z
+      .string()
+      .regex(/^[A-Za-z][A-Za-z0-9_$#]{0,127}$/)
+      .default('CIFRAI_MIG'),
+  ),
   ORACLE_POOL_MAX: opt(z.coerce.number().int().min(1).max(50).default(4)),
+  // Segredo do HMAC do token de sessao (ADR-0004). Minimo de 32 caracteres; gerar com `openssl rand -base64 48`.
+  SESSION_SECRET: z
+    .string()
+    .min(32)
+    .refine(
+      (v) => !v.startsWith('CHANGE_ME'),
+      'defina um valor real (placeholder do .env.example)',
+    ),
+  // true so atras do proxy (Caddy): faz req.ip vir de X-Forwarded-For. Exposta direto, seria forjavel.
+  TRUST_PROXY: opt(z.enum(['true', 'false']).default('false')),
+  // Origens extras aceitas na checagem anti-CSRF (alem da propria origem), separadas por virgula.
+  APP_ORIGINS: opt(z.string().default('')),
   READY_TIMEOUT_MS: opt(z.coerce.number().int().min(100).max(30000).default(2000)),
 });
 
@@ -28,7 +46,12 @@ export interface AppConfig {
     user: string;
     password: string;
     poolMax: number;
+    /** Schema dono das tabelas (CURRENT_SCHEMA); o CIFRAI_APP nao tem objetos proprios. */
+    schema: string;
   };
+  sessionSecret: string;
+  trustProxy: boolean;
+  allowedOrigins: string[];
   readyTimeoutMs: number;
 }
 
@@ -58,7 +81,13 @@ export function loadConfig(env: Record<string, string | undefined>): AppConfig {
       user: e.ORACLE_USER,
       password: e.ORACLE_PASSWORD,
       poolMax: e.ORACLE_POOL_MAX,
+      schema: e.ORACLE_SCHEMA,
     },
+    sessionSecret: e.SESSION_SECRET,
+    trustProxy: e.TRUST_PROXY === 'true',
+    allowedOrigins: e.APP_ORIGINS.split(',')
+      .map((o) => o.trim())
+      .filter((o) => o !== ''),
     readyTimeoutMs: e.READY_TIMEOUT_MS,
   };
 }

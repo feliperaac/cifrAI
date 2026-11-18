@@ -15,7 +15,7 @@ async function main(): Promise<void> {
   }
 
   const db = await createOracleDatabase(config.oracle);
-  const app = buildApp({ config, db });
+  const app = await buildApp({ config, db });
 
   let shuttingDown = false;
   const shutdown = async (signal: string): Promise<void> => {

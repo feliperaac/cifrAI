@@ -4,13 +4,27 @@ import { z } from 'zod';
 import { buildApp } from './app.js';
 import type { Database } from './db/oracle.js';
 
-const config = { logLevel: 'info', readyTimeoutMs: 200 } as const;
-const fakeDb = (ping: Database['ping']): Database => ({ ping, close: async () => {} });
+const config = {
+  logLevel: 'info',
+  readyTimeoutMs: 200,
+  sessionSecret: 'segredo-de-teste-com-mais-de-32-caracteres',
+  trustProxy: false,
+  allowedOrigins: [] as string[],
+} as const;
+const unused = async (): Promise<never> => {
+  throw new Error('fakeDb: sem acesso a dados neste teste');
+};
+const fakeDb = (ping: Database['ping']): Database => ({
+  ping,
+  withConnection: unused,
+  withTransaction: unused,
+  close: async () => {},
+});
 
 describe('GET /health', () => {
   it('responde 200 sem tocar no banco', async () => {
     const ping = vi.fn();
-    const app = buildApp({ config, db: fakeDb(ping), silent: true });
+    const app = await buildApp({ config, db: fakeDb(ping), silent: true });
     const res = await app.inject({ method: 'GET', url: '/health' });
     expect(res.statusCode).toBe(200);
     expect(res.json()).toEqual({ status: 'ok' });
@@ -21,7 +35,7 @@ describe('GET /health', () => {
 
 describe('GET /ready', () => {
   it('200 quando o banco responde', async () => {
-    const app = buildApp({ config, db: fakeDb(async () => {}), silent: true });
+    const app = await buildApp({ config, db: fakeDb(async () => {}), silent: true });
     const res = await app.inject({ method: 'GET', url: '/ready' });
     expect(res.statusCode).toBe(200);
     expect(res.json()).toEqual({ status: 'ready' });
@@ -31,7 +45,7 @@ describe('GET /ready', () => {
     const db = fakeDb(async () => {
       throw new Error('ORA-12514: segredo-interno host=10.0.0.1');
     });
-    const app = buildApp({ config, db, silent: true });
+    const app = await buildApp({ config, db, silent: true });
     const res = await app.inject({ method: 'GET', url: '/ready' });
     expect(res.statusCode).toBe(503);
     expect(res.json()).toEqual({
@@ -43,7 +57,7 @@ describe('GET /ready', () => {
 
   it('503 quando o banco excede o timeout', async () => {
     const db = fakeDb(() => new Promise<void>(() => {}));
-    const app = buildApp({ config, db, silent: true });
+    const app = await buildApp({ config, db, silent: true });
     const res = await app.inject({ method: 'GET', url: '/ready' });
     expect(res.statusCode).toBe(503);
     expect(res.json().error.code).toBe('NOT_READY');
@@ -52,14 +66,14 @@ describe('GET /ready', () => {
 
 describe('tratamento de erros', () => {
   it('404 no formato unico', async () => {
-    const app = buildApp({ config, db: fakeDb(async () => {}), silent: true });
+    const app = await buildApp({ config, db: fakeDb(async () => {}), silent: true });
     const res = await app.inject({ method: 'GET', url: '/nao-existe' });
     expect(res.statusCode).toBe(404);
     expect(res.json()).toEqual({ error: { code: 'NOT_FOUND', message: 'Rota inexistente.' } });
   });
 
   it('500 generico sem stack nem mensagem interna', async () => {
-    const app = buildApp({ config, db: fakeDb(async () => {}), silent: true });
+    const app = await buildApp({ config, db: fakeDb(async () => {}), silent: true });
     app.get('/boom', async () => {
       throw new Error('SELECT * FROM segredo falhou');
     });
@@ -73,7 +87,7 @@ describe('tratamento de erros', () => {
   });
 
   it('400 VALIDATION_ERROR para ZodError', async () => {
-    const app = buildApp({ config, db: fakeDb(async () => {}), silent: true });
+    const app = await buildApp({ config, db: fakeDb(async () => {}), silent: true });
     app.post('/echo', async (req) => z.object({ name: z.string().min(1) }).parse(req.body));
     const res = await app.inject({ method: 'POST', url: '/echo', payload: { name: '' } });
     expect(res.statusCode).toBe(400);
@@ -81,7 +95,7 @@ describe('tratamento de erros', () => {
   });
 
   it('400 para JSON malformado e 413 para payload grande', async () => {
-    const app = buildApp({ config, db: fakeDb(async () => {}), silent: true });
+    const app = await buildApp({ config, db: fakeDb(async () => {}), silent: true });
     app.post('/echo', async (req) => req.body);
     const bad = await app.inject({
       method: 'POST',
@@ -111,7 +125,7 @@ describe('logging', () => {
         cb();
       },
     });
-    const app = buildApp({ config, db: fakeDb(async () => {}), logStream });
+    const app = await buildApp({ config, db: fakeDb(async () => {}), logStream });
     app.post('/login', async (req) => {
       req.log.info({ body: { password: 'senha-super-secreta' } }, 'login attempt');
       return {};

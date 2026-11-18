@@ -5,7 +5,7 @@
 
 **Última atualização:** 2026-11-15
 **Fase atual:** F1 — Núcleo do produto (F0 concluída)
-**Próxima tarefa:** F1-09 (trilha, perfil, meta diária, streak), depois F1-03. F1-15 só com go-ahead do usuário
+**Próxima tarefa:** F1-21 (endurecimento da autenticação), depois F1-08 (endpoints). F1-03 e F1-15 quando o usuário quiser
 **Ambiente:** VM dev (Oracle 19c local) · VM prod: ainda não provisionada
 
 ## Regras de uso
@@ -39,8 +39,9 @@
 - [x] F1-04 `frontend-ui` Player de lição: máquina de estados, feedback, barra de progresso, tela de resultado (XP) (VL-0022, verificado pelo usuário)
 - [x] F1-18 `frontend-ui` Player com som e pontos locais: exercícios com `ChordDiagram` tocável (schema `multiple_choice` com `chordId`/`chordPresentation`) e XP local por evento `lesson.completed` (ADR-0002) com total na Home/Perfil/resultado. Feedback do usuário em 2026-11-15 (VL-0024, verificado pelo usuário)
 - [x] F1-05 `frontend-ui` Tipos de exercício: múltipla escolha, associar pares, ordenar, montar acorde, "praticou no violão?" (auto-avaliação) (VL-0026, verificado pelo usuário; schema estendido com chordIds no practice_timer e chordId nos pares do match_pairs)
-- [ ] F1-06 `backend-api` Auth (e-mail + senha com argon2, sessão por cookie httpOnly) e modo convidado
+- [x] F1-06 `backend-api` Auth (e-mail + senha com argon2, sessão por cookie httpOnly) e modo convidado (VL-0030; ADR-0004; revisão de segurança sem bloqueios)
 - [x] F1-07 `oracle-db` Modelo de progresso: usuários, progresso por lição, log de XP, streak, cartões de revisão. ADR-0002: provar `executeMany`+`batchErrors` em thin mode no 19c e `ON DELETE CASCADE` (VL-0029; migrações V005..V023 aplicadas no Oracle de dev; verificado do zero)
+- [ ] F1-21 `backend-api` + `devops-infra` Endurecimento da autenticação (achados do security-reviewer, VL-0030), ANTES da F1-08: (a) limite por e-mail incrementar antes do verify, com teste `Promise.all` (M1); (b) publicar portas de dev só em `127.0.0.1` e fixar `trustProxy` no IP do Caddy (M2); (c) normalizar senha em NFC antes de hash/verify/política; (d) exigir `Bearer ` no bypass de Origin e centralizar extração de credencial + CSRF num plugin para todo método não seguro em `/v1`; (e) rate limit em `/me` e `/logout`; (f) `Retry-After` no 429 por e-mail; (g) revogar a sessão do cookie anterior no login; (h) validar a resposta antes do `setCookie`; (i) corrigir ADR-0004 §4; (j) Caddy: cabeçalhos sem duplicidade e `admin localhost:2019`
 - [ ] F1-08 `backend-api` Endpoints: currículo, progresso, XP, streak, meta diária
 - [~] F1-09 `frontend-ui` Trilha de unidades (mapa estilo Duolingo), perfil, meta diária, streak (VL-0028, aguarda verificação visual do usuário)
 - [ ] F1-10 `backend-api` Revisão espaçada (SM-2 simplificado) para cifras e acordes
@@ -80,6 +81,7 @@
 - [ ] F5-01 `devops-infra` Provisionar VM prod, Docker, Caddy com domínio e TLS
 - [ ] F5-02 `oracle-db` Schema prod, usuários, backup/restore testado
 - [ ] F5-03 `devops-infra` Deploy por tag + rollback testado (`deploy.sh`, `rollback.sh`)
+- [ ] F5-06 `devops-infra` + `backend-api` Pré-produção de autenticação/LGPD (VL-0030): confirmar que o Caddy vê o IP real do cliente (M3; `trusted_proxies` se houver CDN), rota de exclusão de conta, política de privacidade (e-mail, fuso, IP em logs, retenção), decisão sobre menores de 12 anos (LGPD art. 14), job de limpeza de sessões, `SESSION_SECRET` com rotação (`SESSION_SECRET_PREVIOUS`), hardening do container (read_only, cap_drop, no-new-privileges)
 - [ ] F5-04 `security-reviewer` Revisão pré-produção (OWASP, LGPD, rate limit, headers)
 - [ ] F5-05 `devops-infra` Observabilidade mínima: logs, healthchecks, alerta de indisponibilidade
 
@@ -100,7 +102,7 @@ _Nenhum._
 - **Ambiente:** stack dev no ar (`HTTP_PORT=8088 HTTPS_PORT=8443 docker compose -f compose.yaml -f compose.dev.yaml up -d`); web em `http://192.168.20.234:5173`, galeria em `/dev/acordes`. Portas 80/443 e os containers `arasuper-app` e `proxy-nginx` são do usuário: não tocar. Node local 20 (projeto exige 24: CI e Docker usam 24). pnpm em `~/.local/bin`.
 - **Segredos:** `.env` e `.mcp.json` são do usuário e ficam fora do git; nunca ler nem imprimir valores. Testar o CI sempre com o `.env.example`.
 - **Repositório:** `git@github.com:feliperaac/cifrAI.git` (público), branch `main`. Todo push de código dispara o CI e publica imagens no GHCR; commits só de `*.md` e `docs/**` não disparam.
-- **Em andamento (aguarda o usuário):** F1-09 (trilha, perfil, meta e streak em 360, 768 e 1280 px). Próximas: F1-06, F1-08. Próximo VL: 0030.
+- **Em andamento (aguarda o usuário):** F1-09 (trilha, perfil, meta e streak em 360, 768 e 1280 px). Próxima: F1-21 (endurecimento da auth), depois F1-08. Próximo VL: 0031.
 - **Aguardam o usuário:** decisões de F1-01 (teto de XP 100, categorias de lição, XP por exercício, mínimo de exercícios), valores de XP de repetição (20%) e teto diário (500) propostos no ADR-0002, preferência de dedilhado (G 2-1-3 ou 3-2-4; A 1-2-3), se entra acorde com pestana (F/Bm).
 - **Próximas:** F1-05, F1-19, F1-09 (trilha/perfil/meta/streak), F1-03 (Fretboard), F1-15 (quizzes de acorde, parte do schema já feita na F1-18), F1-06/07/08 (auth, modelo, endpoints), F1-11 (outbox/sync sobre o `EventStore`).
 - **Memórias do projeto** em `~/.claude/projects/-home-felipe-projetos-pessoal-cifrai/memory/` (fuso Rio Branco, CI, stack no ar, referência Duolingo, direção de design).

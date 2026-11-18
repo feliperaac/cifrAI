@@ -182,6 +182,11 @@ db_progresso() {
     api node scripts/progress-model.mjs
 }
 
+db_auth() {
+  "${COMPOSE_DEV[@]}" run --rm --no-deps -e RUN_DB_TESTS=1 \
+    api pnpm exec vitest run src/routes/auth.integration.test.ts
+}
+
 # ---------- pipeline ----------
 echo "CifrAI: validacao local (stack=$COM_STACK db=$COM_DB)"
 
@@ -231,6 +236,7 @@ if [ "$COM_DB" -eq 1 ] && [ "$FALHOU" -eq 0 ]; then
     etapa "db flyway info/validate" db_flyway
     [ "$FALHOU" -ne 0 ] || etapa "db app-privileges" db_privilegios
     [ "$FALHOU" -ne 0 ] || etapa "db progress-model" db_progresso
+    [ "$FALHOU" -ne 0 ] || etapa "db auth (integracao)" db_auth
   else
     pular "db" "$motivo"
   fi

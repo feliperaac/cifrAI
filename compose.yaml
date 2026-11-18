@@ -20,6 +20,10 @@ services:
       ORACLE_SERVICE: ${ORACLE_SERVICE:?defina ORACLE_SERVICE no .env}
       ORACLE_USER: ${ORACLE_USER:-CIFRAI_APP}
       ORACLE_PASSWORD: ${ORACLE_PASSWORD:?defina ORACLE_PASSWORD no .env}
+      SESSION_SECRET: ${SESSION_SECRET:?defina SESSION_SECRET no .env}
+      # O api so e alcancavel pelo Caddy (rede interna): confia no X-Forwarded-For dele.
+      TRUST_PROXY: 'true'
+      APP_ORIGINS: ${APP_ORIGINS:-}
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     healthcheck:

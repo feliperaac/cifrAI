@@ -21,7 +21,7 @@ export function AppLayout() {
           <Wordmark />
         </header>
         <BottomNav />
-        <main id="conteudo" className="flex-1 px-4 pb-24 pt-2 md:px-8 lg:pb-12">
+        <main id="conteudo" className="flex-1 px-4 pb-24 pt-2 md:px-8 lg:pb-12 lg:pt-8">
           <Outlet />
         </main>
       </div>

@@ -33,10 +33,10 @@ export default function ChordGalleryPage() {
           Mostrar dedos
         </label>
       </div>
-      <ul className="grid list-none grid-cols-[repeat(auto-fill,minmax(9.5rem,1fr))] gap-3 p-0">
+      <ul className="grid list-none grid-cols-[repeat(auto-fill,minmax(12rem,14rem))] gap-3 p-0">
         {CHORD_CATALOG.map((chord) => (
           <li key={chord.id}>
-            <Card variant="raised" className="p-2">
+            <Card variant="raised" className="p-3">
               <ChordDiagram
                 chord={chord}
                 leftHanded={leftHanded}

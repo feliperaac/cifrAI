@@ -23,7 +23,8 @@ export const devLesson: Lesson = {
   category: 'concept',
   status: 'active',
   xp: 20,
-  exerciseCount: 7,
+  exerciseCount: 10,
+  safetyNotice: 'Faça pausas curtas. Se sentir dor nos pulsos ou dedos, pare e descanse.',
   prerequisites: [],
   exercises: [
     mc(1, 'Quantas cordas tem o violão?', ['4', '6', '8'], 1, 'O violão comum tem 6 cordas.'),
@@ -46,7 +47,7 @@ export const devLesson: Lesson = {
       type: 'build_chord',
       prompt: 'Monte o acorde de Mi menor.',
       chordId: 'em',
-      explanation: 'Exercício de tipo ainda não suportado: usado para testar o fallback.',
+      explanation: 'Mi menor: dedos 2 e 3 nas cordas 5 e 4, casa 2; as demais cordas soltas.',
     },
     mc(
       5,
@@ -81,6 +82,33 @@ export const devLesson: Lesson = {
       ],
       correctOptionId: 'o2',
       explanation: 'Os acordes menores soam mais sombrios. Esse é o Lá menor.',
+    },
+    {
+      id: 'u99.l01.e08',
+      type: 'match_pairs',
+      prompt: 'Ligue cada nota ao nome em cifra.',
+      pairs: [
+        { left: 'Lá', right: 'A' },
+        { left: 'Mi', right: 'E' },
+        { left: 'Sol', right: 'G' },
+      ],
+      explanation:
+        'Na cifra, as notas viram letras: Lá = A, Si = B, Dó = C, Ré = D, Mi = E, Fá = F, Sol = G.',
+    },
+    {
+      id: 'u99.l01.e09',
+      type: 'order',
+      prompt: 'Coloque as cordas na ordem, da mais grave (6ª) para a mais aguda (1ª).',
+      items: ['Mi grave (6ª)', 'Lá (5ª)', 'Ré (4ª)', 'Sol (3ª)', 'Si (2ª)', 'Mi agudo (1ª)'],
+      explanation: 'As cordas vão de Mi grave a Mi agudo: Mi, Lá, Ré, Sol, Si, Mi.',
+    },
+    {
+      id: 'u99.l01.e10',
+      type: 'practice_timer',
+      prompt: 'Pratique no violão: troque entre Em e Am por 30 segundos.',
+      durationSeconds: 30,
+      explanation:
+        'Trocar de acorde devagar e sem tensão treina os dedos mais do que trocar rápido.',
     },
   ],
 };

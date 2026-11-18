@@ -32,7 +32,10 @@ export function LessonPlayer({ lesson, onExit }: LessonPlayerProps) {
     state.phase === 'exercise' || state.phase === 'feedback'
       ? lesson.exercises[state.index]
       : undefined;
-  const kit = exercise === undefined ? null : resolveExerciseKit(exercise);
+  const kit =
+    exercise === undefined
+      ? null
+      : resolveExerciseKit(exercise, { safetyNotice: lesson.safetyNotice });
   const locked = state.phase === 'feedback';
   const correct = locked ? state.answers[state.answers.length - 1] === true : false;
 
@@ -136,7 +139,8 @@ export function LessonPlayer({ lesson, onExit }: LessonPlayerProps) {
                   className={`m-0 flex items-center gap-2 font-display text-xl font-extrabold ${correct ? 'text-success' : 'text-danger'}`}
                 >
                   {correct ? <CheckIcon /> : <CrossIcon />}
-                  {correct ? t('lesson.feedback.correct') : t('lesson.feedback.wrong')}
+                  {kit.feedbackTitle?.(response) ??
+                    (correct ? t('lesson.feedback.correct') : t('lesson.feedback.wrong'))}
                 </p>
                 {!correct && (
                   <p className="m-0 font-bold">

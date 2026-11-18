@@ -403,3 +403,14 @@
 
 ### VL-0025 — adendo de verificação do usuário (2026-11-17)
 - O usuário conferiu o app em várias larguras e respondeu "aparentemente tudo certo". Fecha as pendências visuais de 768/360 px, tema claro, abertura e canhoto, com a ressalva de que a confirmação foi geral, sem detalhe por item.
+
+---
+
+## VL-0026 — F1-05 Tipos de exercício (PARCIAL: sem verificação visual)
+- **Data:** 2026-11-17 (fuso de referência: America/Rio_Branco)
+- **Tarefa:** F1-05
+- **Agente:** frontend-ui (reverificado pelo agente principal)
+- **Escopo validado:** `match_pairs`, `order`, `build_chord` (com `FretboardInput` reutilizável pela F1-03) e `practice_timer` no player, via `resolveExerciseKit`; embaralhamento determinístico; lógica pura de avaliação (`exerciseLogic.ts`, `practiceTimerLogic.ts`); timer por instante absoluto de relógio (não depende da aba ativa, reavalia em `visibilitychange`); fallback mantido só para tipo desconhecido; fixture `u99.l01` com 10 exercícios e `safetyNotice`; sem dependência nova
+- **Comando executado (agente principal):** `pnpm validate` completo OK (format, lint, typecheck, test, content:validate, web build, docker dev e prod). Testes web 191 em 21 arquivos; JS inicial 126,9 kB gzip (orçamento 200 KB).
+- **NÃO VERIFICADO:** aparência e usabilidade em 360, 768 e 1280 px (o braço do `build_chord` tem ≈328 px úteis em 360 px: justo); contraste; leitor de tela real; som do "Ouvir o que montei" (só o botão habilitar foi testado); modo canhoto no `FretboardInput`; Lighthouse
+- **Decisões/pendências:** `practice_timer` conta como feito nos dois botões e nunca pune; `build_chord` compara as 6 casas exatas com o catálogo (voicing alternativa válida conta como errada; dedos não avaliados); **`match_pairs` "nome do acorde ↔ diagrama" não é possível com o schema atual** (`pairs` só aceita texto): precisa de campo opcional `chordId` no par (parte da F1-15); sons de acerto/erro seguem na F1-19

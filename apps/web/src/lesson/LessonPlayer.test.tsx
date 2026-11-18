@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { LessonSchema } from '@cifrai/content';
+import { LessonSchema, type Lesson } from '@cifrai/content';
 import { describe, expect, it, vi } from 'vitest';
 import { createMemoryEventStore } from '../progress/eventStore';
 import { configureProgress } from '../progress/progressStore';
@@ -110,8 +110,13 @@ describe('LessonPlayer', () => {
 
   it('tipo não suportado mostra o fallback e permite pular', async () => {
     const user = userEvent.setup();
-    const unsupported = devLesson.exercises.filter((e) => e.type === 'build_chord');
-    render(<LessonPlayer lesson={{ ...devLesson, exercises: unsupported }} onExit={vi.fn()} />);
+    const unknown = {
+      id: 'u99.l01.e99',
+      type: 'tipo_futuro',
+      prompt: 'x',
+      explanation: 'y',
+    } as unknown as Lesson['exercises'][number];
+    render(<LessonPlayer lesson={{ ...devLesson, exercises: [unknown] }} onExit={vi.fn()} />);
     await user.click(screen.getByRole('button', { name: 'Começar' }));
     expect(
       screen.getByText('Este tipo de exercício ainda não está disponível.'),
